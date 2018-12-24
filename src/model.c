@@ -34,7 +34,9 @@ void *model(void* inPar){
 
 
 	while (1){ // EDIT HERE FOR GRACEFUL DEGRADATION
-		// when it's time, take the data from DeviceInput
+		// when it's time, take the data from DeviceInput:
+		// order of execution problem: no signalC before creating the thread
+		pthread_cond_signal(&condModelReady);
 		pthread_cond_wait(&condDevIn, &mtxDevIn);
 
 		// data acquired

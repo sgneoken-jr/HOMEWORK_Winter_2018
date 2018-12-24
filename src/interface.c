@@ -44,6 +44,7 @@ int fileRead (char *fileName) {
         newCoord.time = time;
         newCoord.space = change;
 
+				pthread_cond_wait(&condModelReady, &mtxModelReady); //order of execution
         // Append data to DeviceInput list
         DeviceInput = addToList(DeviceInput, &newCoord); // a new node is created
 
