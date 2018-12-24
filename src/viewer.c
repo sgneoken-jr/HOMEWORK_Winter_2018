@@ -1,7 +1,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <sys/time.h>
 
 #include "viewer.h"
 #include "constants.h"
@@ -18,8 +18,6 @@ void *viewer(void *inputParameters){
 /*	sprintf(newWindow, "gnome-terminal --geometry=%dx%d+%d+%d",*/
 /*		width, height, xPos, yPos);*/
 /*	system(newWindow);*/
-	
+
 	pthread_exit(NULL);
 }
-
-
