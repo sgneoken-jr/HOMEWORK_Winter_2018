@@ -17,3 +17,7 @@ pthread_mutex_t mtxDevPos;	// mutex for monitoring DevicePosition
 
 pthread_cond_t condDevIn;	// cond for monitoring DeviceInput
 pthread_cond_t condDevPos;	// cond for monitoring DevicePosition
+
+// Synchronization
+pthread_cond_t condModelReady;
+pthread_mutex_t mtxModelReady;

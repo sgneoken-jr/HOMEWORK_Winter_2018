@@ -50,7 +50,7 @@ int main(int argc, char **argv){
 	sigset_t protMask;
 	sigfillset(&protMask);
 	if (pthread_sigmask(SIG_BLOCK, &protMask, NULL) != 0){
-		printf("Error in setting the process mask\n", );
+		printf("Error in setting the process mask\n");
 		exit(EXIT_FAILURE);
 	}
 	// all the blockable signals will be blocked for the main thread and all the
