@@ -13,6 +13,7 @@
 #include "model.h"
 #include "controller.h"
 #include "viewer.h"
+#include "timing.h"
 #include "list.h"
 #include "myTypes.h"
 #include "myFunctions.h"
@@ -32,6 +33,7 @@ int main(int argc, char **argv){
 	// Initialization of global variables
 	DeviceInput = NULL;
 	DevicePosition = NULL;
+	gracefulDegradation = false;
 
 
 	// Input parsing
@@ -61,6 +63,12 @@ int main(int argc, char **argv){
 	initCondVar();
 
 	// Thread create
+
+	if (pthread_create(&timingID, NULL, (void*)timing, NULL) != 0){
+			printf("Thread create: timing\n");
+			exit(EXIT_FAILURE);
+	}
+
 	if (pthread_create(&interfaceID, NULL, (void*)interface, (void *)fileName) != 0){
 			printf("Thread create: interface\n");
 			exit(EXIT_FAILURE);
@@ -83,6 +91,15 @@ int main(int argc, char **argv){
 
 
 	// Thread join
+
+	if (pthread_join(timingID, NULL) != 0){
+			printf("Thread join: timing\n");
+			exit(EXIT_FAILURE);
+	}
+	#ifdef DEBUG
+	printf("Timing joined\n");
+	#endif
+
 	if (pthread_join(interfaceID, NULL) != 0){
 			printf("Thread join: interface\n");
 			exit(EXIT_FAILURE);

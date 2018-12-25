@@ -5,6 +5,9 @@
 
 #include "viewer.h"
 #include "constants.h"
+#include "globVar.h"
+#include "myTypes.h"
+
 
 void *viewer(void *inputParameters){
 	#ifdef DEBUG
@@ -18,6 +21,12 @@ void *viewer(void *inputParameters){
 /*	sprintf(newWindow, "gnome-terminal --geometry=%dx%d+%d+%d",*/
 /*		width, height, xPos, yPos);*/
 /*	system(newWindow);*/
+
+	while (!gracefulDegradation){
+		#ifdef DEBUG
+		printf("%s\n", "I'm the viewer");
+		#endif
+	}
 
 	pthread_exit(NULL);
 }

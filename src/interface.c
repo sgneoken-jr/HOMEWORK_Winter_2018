@@ -39,6 +39,8 @@ int fileRead (char *fileName) {
     double change;
     Coordinate newCoord;
 
+		
+
     while ( fgets(line, sizeof(line), device_file) ) {
         sscanf(line, "%d %lf", &time, &change);
         newCoord.time = time;

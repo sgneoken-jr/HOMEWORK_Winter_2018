@@ -31,12 +31,19 @@ void *model(void* inPar){
 	// The data will be in reversed order, since extracted from a list.
 	// I can put them in that order into the next list, so that the viewer and
 	// the controller will extract them in the correct order.
+	#ifdef DEBUG
+	printf("%s\n", "Model telling Interface it is ready");
+	#endif
+	pthread_cond_signal(&condModelReady);
 
 
-	while (1){ // EDIT HERE FOR GRACEFUL DEGRADATION
+	while (!gracefulDegradation){ // EDIT HERE FOR GRACEFUL DEGRADATION
 		// when it's time, take the data from DeviceInput:
 		// order of execution problem: no signalC before creating the thread
-		pthread_cond_signal(&condModelReady);
+
+		#ifdef DEBUG
+		printf("%s\n", "Model waiting to read from buffer");
+		#endif
 		pthread_cond_wait(&condDevIn, &mtxDevIn);
 
 		// data acquired

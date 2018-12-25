@@ -3,6 +3,9 @@
 
 #include <pthread.h>
 #include "myTypes.h"
+#include "list.h"
+
+extern bool gracefulDegradation;
 
 extern Node* DeviceInput;
 extern Node *DevicePosition;
@@ -11,6 +14,7 @@ extern pthread_t interfaceID;
 extern pthread_t modelID;
 extern pthread_t controllerID;
 extern pthread_t viewerID;
+extern pthread_t timingID;
 
 // Mutual exclusion on buffers
 extern pthread_mutex_t mtxDevIn;	// mutex for monitoring DeviceInput
