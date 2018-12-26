@@ -43,10 +43,6 @@ int main(int argc, char **argv){
 		exit(EXIT_FAILURE);
 	}
 
-	#ifdef DEBUG
-	printf("Reading from file: %s\n", fileName);
-	#endif
-
 	// Before creating the threads, let's make a signal mask that will be inherited
 	// by all the threads
 	sigset_t protMask;
@@ -69,6 +65,12 @@ int main(int argc, char **argv){
 			exit(EXIT_FAILURE);
 	}
 
+	// better have the impression that somthing is closing
+	if (pthread_create(&viewerID, NULL, (void*)viewer, (void *)&cmdLinePar) != 0){
+			printf("Thread create: viewer\n");
+			exit(EXIT_FAILURE);
+	}
+
 	if (pthread_create(&interfaceID, NULL, (void*)interface, (void *)fileName) != 0){
 			printf("Thread create: interface\n");
 			exit(EXIT_FAILURE);
@@ -84,10 +86,6 @@ int main(int argc, char **argv){
 			exit(EXIT_FAILURE);
 	}
 
-	if (pthread_create(&viewerID, NULL, (void*)viewer, (void *)&cmdLinePar) != 0){
-			printf("Thread create: viewer\n");
-			exit(EXIT_FAILURE);
-	}
 
 
 	// Thread join

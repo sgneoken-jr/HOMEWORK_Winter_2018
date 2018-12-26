@@ -1,6 +1,8 @@
 #ifndef MYFUNCTIONS_H
 #define MYFUNCTIONS_H
 
+#define ABS(N) ((N<0)?(-N):(N))
+
 /*============================================================================*/
 /* Input Parsing */
 
