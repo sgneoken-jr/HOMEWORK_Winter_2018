@@ -26,20 +26,17 @@ void *timing(void *inPar){
   printf("%s\n", "Timing thread launched...");
   #endif
 
+  timerTag tTag;
+
   struct sigevent sigx;
   struct itimerspec val;
 
-  InputPar *myPar = (InputPar *)inPar;
-  int controllerInterval = myPar->ctrlPer;
-	int viewerInterval = myPar->viewPer;
-  timerTag tTag;
-  tTag = 0;
-  #ifdef DEBUG
-  printf("%s%d\n", "tTag=", (int)tTag);
-  #endif
-  tTag = NUM_TAGS; // timer_tag is an enum type of mine
+  // InputPar *myPar = (InputPar *)inPar;
+  // int controllerInterval = myPar->ctrlPer;
+	// int viewerInterval = myPar->viewPer;
 
-  timer_t timerID[tTag];
+  tTag = NUM_TAGS; // timer_tag is an enum type of mine
+  timer_t timerID[(int)tTag];
 
   sigset_t myMask;
   sigemptyset(&myMask);
@@ -47,21 +44,24 @@ void *timing(void *inPar){
   	printf("Error in setting the process mask\n");
   	exit(EXIT_FAILURE);
   }
+  #ifdef DEBUG
+  printf("%s\n", "Thread mask set");
+  #endif
 
   sigset_t waitedSignals;
   sigemptyset(&waitedSignals);
   sigaddset(&waitedSignals, SIGUSR1);
   // sigaddset(&waitedSignals, SIGINT);
   int sig;
+  #ifdef DEBUG
+  printf("%s\n", "Arranged signal set to expect");
+  #endif
 
   sigx.sigev_notify = SIGEV_SIGNAL;
   sigx.sigev_signo = SIGUSR1;
 
   tTag = TIMER_NEW_DATA_TAG;
   sigx.sigev_value.sival_int = (int)tTag;
-  #ifdef DEBUG
-  printf("%s\n", "The timer is going to be created");
-  #endif
   if (timer_create(CLOCK_REALTIME, &sigx, &timerID[tTag]) == -1) {
     printf("%s\n", "Error in creating a timer");
     exit(EXIT_FAILURE);
@@ -82,26 +82,24 @@ void *timing(void *inPar){
   //     already  passed,  then  the  timer expires immediately, and the overrun
   //     count (see timer_getoverrun(2)) will be set correctly.
 
-  #ifdef DEBUG
-  printf("%s\n", "The timer is going to be set");
-  #endif
+
   if (timer_settime(timerID[TIMER_NEW_DATA_TAG], 0, &val, NULL) == -1) {
     printf("%s\n", "Error in setting a timer");
     exit(EXIT_FAILURE);
   }
 
-  if (sigwait(&waitedSignals, &sig) != 0){
-      printf("%s\n", "Error in sigwait");
-      //maybe I don't need to exit
+  for (int i = 0; i < 5; ++i){
+    if (sigwait(&waitedSignals, &sig) != 0){
+        printf("%s\n", "Error in sigwait");
+        //maybe I don't need to exit
+    }
+    if (sig == SIGUSR1){
+      sigUsr1Handler();
+    }
   }
-  if (sig == SIGUSR1){
-    sigUsr1Handler();
-  }
-
 
   if (timer_delete(timerID[TIMER_NEW_DATA_TAG]) == -1) {
     printf("%s\n", "Error in deleting a timer");
-    return 1;
   }
 
   // tTag = TIMER_CTRL_TAG;
