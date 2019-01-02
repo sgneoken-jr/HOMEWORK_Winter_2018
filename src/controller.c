@@ -17,6 +17,11 @@ void *controller(void* inputParameters){
 	int currTime;
 	double currPos;
 
+	#ifdef DEBUG
+	currTime = 0;
+	currPos = 0.0;
+	#endif
+
 	char fileName[] = "output.txt";
 	device_file = fopen(fileName, "w+");
 
@@ -25,11 +30,12 @@ void *controller(void* inputParameters){
 			exit(EXIT_FAILURE);
 	}
 
-	fprintf(device_file, "%-9s %15.6s\n\n", "Time", "Space"); //resolution is fixed by the format
+	fprintf(device_file, "%-9s %15.9s\n\n", "Time", "Position"); //resolution is fixed by the format
 
 	while (!gracefulDegradation){
 		// currTime = ;
 		// currPos = ;
+
 		fprintf(device_file, "%-9d %15.6lf\n", currTime, currPos);
 	}
 

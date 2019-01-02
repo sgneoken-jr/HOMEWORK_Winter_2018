@@ -47,6 +47,12 @@ int main(int argc, char **argv){
 	// by all the threads
 	sigset_t protMask;
 	sigfillset(&protMask);
+
+	// the following lines must be deleted when doing the extension 5.1
+	#ifdef DEBUG
+	sigdelset(&protMask, SIGINT);
+	#endif
+
 	if (pthread_sigmask(SIG_BLOCK, &protMask, NULL) != 0){
 		printf("Error in setting the process mask\n");
 		exit(EXIT_FAILURE);
@@ -65,12 +71,6 @@ int main(int argc, char **argv){
 			exit(EXIT_FAILURE);
 	}
 
-	// better have the impression that somthing is closing
-	if (pthread_create(&viewerID, NULL, (void*)viewer, (void *)&cmdLinePar) != 0){
-			printf("Thread create: viewer\n");
-			exit(EXIT_FAILURE);
-	}
-
 	if (pthread_create(&interfaceID, NULL, (void*)interface, (void *)fileName) != 0){
 			printf("Thread create: interface\n");
 			exit(EXIT_FAILURE);
@@ -83,6 +83,11 @@ int main(int argc, char **argv){
 
 	if (pthread_create(&controllerID, NULL, (void*)controller, NULL) != 0){
 			printf("Thread create: controller\n");
+			exit(EXIT_FAILURE);
+	}
+
+	if (pthread_create(&viewerID, NULL, (void*)viewer, (void *)&cmdLinePar) != 0){
+			printf("Thread create: viewer\n");
 			exit(EXIT_FAILURE);
 	}
 
@@ -115,6 +120,7 @@ int main(int argc, char **argv){
 	printf("Viewer joined\n");
 	#endif
 
+	// then, let's close the "hidden work"
 	if (pthread_join(interfaceID, NULL) != 0){
 			printf("Thread join: interface\n");
 			exit(EXIT_FAILURE);
@@ -130,6 +136,7 @@ int main(int argc, char **argv){
 	#ifdef DEBUG
 	printf("Model joined\n");
 	#endif
+	
 /*	#ifdef DEBUG*/
 /*	printInputPar(&cmdLinePar);*/
 /*	#endif*/

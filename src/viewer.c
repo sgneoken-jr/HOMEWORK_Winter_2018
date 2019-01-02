@@ -24,6 +24,8 @@ void *viewer(void *inPar){
 	int barLength = BAR_LENGTH;
 	int ind;
 
+	// int newTerminalStatus = system("gnome-terminal");
+
 	double pos = 0.0;
 	int time = 0;
 	int zeroInd = (int)adaptToRange(&pos, &lowerLimit, &upperLimit, &barLength);
@@ -31,6 +33,11 @@ void *viewer(void *inPar){
 	printHeader(&barLength, &zeroInd);
 
 	pos = 10.0;
+	ind = viewPos(&pos, &time, &lowerLimit, &upperLimit, &barLength, &zeroInd);
+
+
+	pos = 0.0;
+	time = 1000;
 	ind = viewPos(&pos, &time, &lowerLimit, &upperLimit, &barLength, &zeroInd);
 
 /*	int width = 104; //characters*/
@@ -51,23 +58,7 @@ void *viewer(void *inPar){
 
 // C++ code from stack overflow for a progress indicator
 // https://stackoverflow.com/questions/14539867/how-to-display-a-progress-indicator-in-pure-c-c-cout-printf
-// float progress = 0.0;
-// while (progress < 1.0) {
-//     int barWidth = 70;
-//
-//     std::cout << "[";
-//     int pos = barWidth * progress;
-//     for (int i = 0; i < barWidth; ++i) {
-//         if (i < pos) std::cout << "=";
-//         else if (i == pos) std::cout << ">";
-//         else std::cout << " ";
-//     }
-//     std::cout << "] " << int(progress * 100.0) << " %\r";
-//     std::cout.flush();
-//
-//     progress += 0.16; // for demonstration only
-// }
-// std::cout << std::endl;
+
 
 void printBar(int *indicator, int *barLength, int *zeroInd){
 	printf("%s", "|");
@@ -85,10 +76,11 @@ void printBar(int *indicator, int *barLength, int *zeroInd){
       printf(ZERO_COLOR"%s"RESET, "-");
     }
 	}
+	printf("%s", "|");
 }
 
 void printCoord(int *time, double *pos){
-  printf("%s \t%d\t%+0.4lf\n", "|", *time, *pos);
+  printf("%9d %+15.6lf\n", *time, *pos);
 }
 
 double adaptToRange(double *pos, double *lowerLimit, double *upperLimit, int *barLength){
@@ -116,7 +108,7 @@ void printHeader(int *barLength, int *zeroInd){
 
 	}
 	printf(BOLDDEFAULT"%s"RESET, "|");
-	printf(BOLDDEFAULT"%s\n"RESET, "\tTime\tPos\t" );
+	printf(BOLDDEFAULT"%9s %15.9s\n"RESET, "Time", "Position" );
 }
 
 
