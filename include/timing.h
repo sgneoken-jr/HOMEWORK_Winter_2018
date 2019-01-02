@@ -10,8 +10,8 @@ typedef enum {
 
 void *timing(void *inPar);
 
-void sigUsr1Handler(void);
+void sigHandler(int sig, siginfo_t* evp, void* ucontext);
+void timerHandler(unsigned int counter);
 
-void interruptHandler(void);
 
 #endif

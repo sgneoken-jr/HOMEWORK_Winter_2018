@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "timing.h"
 #include "config.h"
@@ -26,36 +27,49 @@ void *timing(void *inPar){
   printf("%s\n", "Timing thread launched...");
   #endif
 
-  timerTag tTag;
-
-  struct sigevent sigx;
-  struct itimerspec val;
-
-  // InputPar *myPar = (InputPar *)inPar;
-  // int controllerInterval = myPar->ctrlPer;
-	// int viewerInterval = myPar->viewPer;
-
-  tTag = NUM_TAGS; // timer_tag is an enum type of mine
-  timer_t timerID[(int)tTag];
-
+  // Let's empty the signal mask. This thread gotta catch 'em all
   sigset_t myMask;
   sigemptyset(&myMask);
   if (pthread_sigmask(SIG_BLOCK, &myMask, NULL) != 0){
-  	printf("Error in setting the process mask\n");
-  	exit(EXIT_FAILURE);
+    printf("Error in setting the process mask\n");
+    exit(EXIT_FAILURE);
   }
-  #ifdef DEBUG
-  printf("%s\n", "Thread mask set");
-  #endif
 
-  sigset_t waitedSignals;
-  sigemptyset(&waitedSignals);
-  sigaddset(&waitedSignals, SIGUSR1);
-  // sigaddset(&waitedSignals, SIGINT);
-  int sig;
-  #ifdef DEBUG
-  printf("%s\n", "Arranged signal set to expect");
-  #endif
+  // Definitions
+  timerTag tTag;
+  struct sigevent sigx;
+  struct itimerspec val;
+  struct sigaction act;
+
+  // Installing the handlers
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = SA_SIGINFO;
+  act.sa_sigaction = sigHandler;
+
+  if (sigaction(SIGINT, &act, NULL) == -1) {
+    printf("%s\n", "Error in sigaction interrupt");
+    exit(EXIT_FAILURE);
+  }
+
+  if (sigaction(SIGQUIT, &act, NULL) == -1) {
+    printf("%s\n", "Error in sigaction quit");
+    exit(EXIT_FAILURE);
+  }
+
+  if (sigaction(SIGUSR1, &act, NULL) == -1) {
+    printf("%s\n", "Error in sigaction sigusr1");
+    exit(EXIT_FAILURE);
+  }
+
+
+  // Saving input parameters
+  InputPar *myPar = (InputPar *)inPar;
+  int ctrlInt = myPar->ctrlPer;
+	int viewInt = myPar->viewPer;
+
+  // Timers
+  tTag = NUM_TAGS; // timer_tag is an enum type of mine
+  timer_t timerID[(int)tTag];
 
   sigx.sigev_notify = SIGEV_SIGNAL;
   sigx.sigev_signo = SIGUSR1;
@@ -69,7 +83,7 @@ void *timing(void *inPar){
 
   val.it_value.tv_sec = TIME_UNIT;
   val.it_value.tv_nsec = NTIME_UNIT;
-  val.it_interval.tv_sec = TIME_UNIT;
+  val.it_interval.tv_sec = 2*TIME_UNIT;
   val.it_interval.tv_nsec = NTIME_UNIT;
 
   // By   default,   the    initial    expiration    time    specified    in
@@ -88,13 +102,13 @@ void *timing(void *inPar){
     exit(EXIT_FAILURE);
   }
 
-  for (int i = 0; i < 5; ++i){
-    if (sigwait(&waitedSignals, &sig) != 0){
-        printf("%s\n", "Error in sigwait");
-        //maybe I don't need to exit
-    }
-    if (sig == SIGUSR1){
-      sigUsr1Handler();
+  while (!gracefulDegradation){
+    for (int i = 0; i < 5; ++i){
+      pause();
+    //   if (sigwait(&waitedSignals, &sig) != 0){
+    //       printf("%s\n", "Error in sigwait");}
+    //       //maybe I don't need to exit
+
     }
   }
 
@@ -102,53 +116,43 @@ void *timing(void *inPar){
     printf("%s\n", "Error in deleting a timer");
   }
 
-  // tTag = TIMER_CTRL_TAG;
-  // sigx.sigev_value.sival_int = (int)tTag;
-  // if (timer_create(CLOCK_REALTIME, &sigx, &timerID) == -1) {
-  //   printf("%s\n", "Error in creating a timer");
-  //   exit(EXIT_FAILURE);
-  // }
-  //
-  // tTag = TIMER_VIEW_TAG;
-  // sigx.sigev_value.sival_int = (int)tTag;
-  // if (timer_create(CLOCK_REALTIME, &sigx, &timerID) == -1) {
-  //   printf("%s\n", "Error in creating a timer");
-  //   exit(EXIT_FAILURE);
-  // }
-
-
-
-  // For graceful degradation (Extension 5.1)
-
-  // sigset_t myMask;
-	// sigemptyset(&myMask);
-	// if (pthread_sigmask(SIG_BLOCK, &myMask, NULL) != 0){
-	// 	printf("Error in setting the process mask\n");
-	// 	exit(EXIT_FAILURE);
-	// }
-  //
-  // sigset_t waitedSignals;
-  // sigemptyset(&waitedSignals);
-  // sigaddset(&waitedSignals, SIGINT);
-  // int sig;
-  //
-  // while (!gracefulDegradation){
-  //   if (sigwait(&waitedSignals, &sig) != 0){
-  //     printf("%s\n", "Error in sigwait");
-  //     //maybe I don't need to exit
-  //   }
-  //   if (sig == SIGINT){
-  //     interruptHandler();
-  //   }
-  // }
-
   pthread_exit(NULL);
 }
 
-void sigUsr1Handler(void){
-  printf("%s\n", "Got signal SIGUSR1");
+void sigHandler(int sig, siginfo_t* evp, void* ucontext){
+  time_t tim = time(0);
+  printf("Timer tag: %d, signo: %d, %s \n", evp->si_value.sival_int, sig, ctime(&tim));
+
+  unsigned int counter = 0; // This may cause overflows
+
+  switch (sig){
+    case SIGINT:
+      gracefulDegradation = true;
+      break;
+    case SIGQUIT:
+      exit(1);
+      break;
+    case SIGUSR1:
+      #ifdef DEBUG
+      printf("%s\n", "Got signal SIGUSR1");
+      #endif
+      counter++;
+      break;
+    default:
+      // do nothing different from default
+      break;
+  }
 }
 
-void interruptHandler(void){
-  gracefulDegradation = true;
+void timerHandler(unsigned int counter){
+  // Wake interface
+
+  if (counter % ctrlInt == ctrlInt){
+    // Wake controller
+  }
+  if (counter % viewInt == viewInt){
+    // Wake viewer
+  }
+
+
 }

@@ -49,9 +49,9 @@ int main(int argc, char **argv){
 	sigfillset(&protMask);
 
 	// the following lines must be deleted when doing the extension 5.1
-	#ifdef DEBUG
-	sigdelset(&protMask, SIGINT);
-	#endif
+	// #ifdef DEBUG
+	// sigdelset(&protMask, SIGINT);
+	// #endif
 
 	if (pthread_sigmask(SIG_BLOCK, &protMask, NULL) != 0){
 		printf("Error in setting the process mask\n");
@@ -136,7 +136,7 @@ int main(int argc, char **argv){
 	#ifdef DEBUG
 	printf("Model joined\n");
 	#endif
-	
+
 /*	#ifdef DEBUG*/
 /*	printInputPar(&cmdLinePar);*/
 /*	#endif*/

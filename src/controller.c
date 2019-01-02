@@ -14,13 +14,13 @@ void *controller(void* inputParameters){
 	#endif
 
 	FILE *device_file;
-	int currTime;
-	double currPos;
+	// int currTime;
+	// double currPos;
 
-	#ifdef DEBUG
-	currTime = 0;
-	currPos = 0.0;
-	#endif
+	// #ifdef DEBUG
+	// currTime = 0;
+	// currPos = 0.0;
+	// #endif
 
 	char fileName[] = "output.txt";
 	device_file = fopen(fileName, "w+");
