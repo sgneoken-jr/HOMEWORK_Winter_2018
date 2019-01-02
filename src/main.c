@@ -8,7 +8,7 @@
 #include <string.h>
 
 
-#include "constants.h"
+#include "config.h"
 #include "interface.h"
 #include "model.h"
 #include "controller.h"

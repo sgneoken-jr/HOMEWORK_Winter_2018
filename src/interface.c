@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <sys/time.h>
 
-#include "constants.h"
+#include "config.h"
 #include "interface.h"
 #include "list.h"
 #include "globVar.h"

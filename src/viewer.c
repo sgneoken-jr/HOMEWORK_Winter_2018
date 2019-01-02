@@ -4,7 +4,7 @@
 #include <sys/time.h>
 
 #include "viewer.h"
-#include "constants.h"
+#include "config.h"
 #include "globVar.h"
 #include "myTypes.h"
 #include "myFunctions.h"

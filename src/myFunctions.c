@@ -4,7 +4,7 @@
 
 #include "myTypes.h"
 #include "myFunctions.h"
-#include "constants.h"
+#include "config.h"
 
 /*============================================================================*/
 /* Input Parsing */

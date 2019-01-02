@@ -4,7 +4,7 @@
 #include <sys/time.h>
 
 #include "model.h"
-#include "constants.h"
+#include "config.h"
 #include "list.h"
 #include "globVar.h"
 #include "myTypes.h"

@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "myTypes.h"
-#include "constants.h"
+#include "config.h"
 #include "list.h"
 
 #define EMPTY_LIST		1
