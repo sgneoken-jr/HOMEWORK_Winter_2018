@@ -98,22 +98,7 @@ int main(int argc, char **argv){
 	printf("Timing joined\n");
 	#endif
 
-	if (pthread_join(interfaceID, NULL) != 0){
-			printf("Thread join: interface\n");
-			exit(EXIT_FAILURE);
-	}
-	#ifdef DEBUG
-	printf("Interface joined\n");
-	#endif
-
-	if (pthread_join(modelID, NULL) != 0){
-			printf("Thread join: model\n");
-			exit(EXIT_FAILURE);
-	}
-	#ifdef DEBUG
-	printf("Model joined\n");
-	#endif
-
+	// at first, let's close threads the user sees
 	if (pthread_join(controllerID, NULL) != 0){
 			printf("Thread join: controller\n");
 			exit(EXIT_FAILURE);
@@ -130,6 +115,21 @@ int main(int argc, char **argv){
 	printf("Viewer joined\n");
 	#endif
 
+	if (pthread_join(interfaceID, NULL) != 0){
+			printf("Thread join: interface\n");
+			exit(EXIT_FAILURE);
+	}
+	#ifdef DEBUG
+	printf("Interface joined\n");
+	#endif
+
+	if (pthread_join(modelID, NULL) != 0){
+			printf("Thread join: model\n");
+			exit(EXIT_FAILURE);
+	}
+	#ifdef DEBUG
+	printf("Model joined\n");
+	#endif
 /*	#ifdef DEBUG*/
 /*	printInputPar(&cmdLinePar);*/
 /*	#endif*/

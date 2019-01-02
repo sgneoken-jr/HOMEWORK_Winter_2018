@@ -13,6 +13,7 @@
 #define DEFAULT_INPUT_FILE  "../input/device.txt"
 #define TIME_UNIT           0
 #define UTIME_UNIT          10e5
+#define MAX_LINE_LENGTH     80
 
 // For visulization
 #define BAR_LENGTH          100

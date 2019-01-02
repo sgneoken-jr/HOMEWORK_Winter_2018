@@ -13,9 +13,27 @@ void *controller(void* inputParameters){
 	printf("Controller thread lauched...\n");
 	#endif
 
-	while (!gracefulDegradation){
+	FILE *device_file;
+	int currTime;
+	double currPos;
 
+	char fileName[] = "output.txt";
+	device_file = fopen(fileName, "w+");
+
+	if (device_file == NULL) {
+			printf("Can't open %s\n", fileName);
+			exit(EXIT_FAILURE);
 	}
+
+	fprintf(device_file, "%-9s %15.6s\n\n", "Time", "Space"); //resolution is fixed by the format
+
+	while (!gracefulDegradation){
+		// currTime = ;
+		// currPos = ;
+		fprintf(device_file, "%-9d %15.6lf\n", currTime, currPos);
+	}
+
+	fclose(device_file);
 
 	pthread_exit(NULL);
 }
