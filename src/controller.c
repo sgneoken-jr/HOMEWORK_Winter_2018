@@ -36,7 +36,7 @@ void *controller(void* inputParameters){
 		// currTime = ;
 		// currPos = ;
 
-		fprintf(device_file, "%-9d %15.6lf\n", currTime, currPos);
+		// fprintf(device_file, "%-9d %15.6lf\n", currTime, currPos);
 	}
 
 	fclose(device_file);

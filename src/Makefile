@@ -6,7 +6,7 @@ ODIR=obj
 LDIR=../lib
 DDIR=debugging
 
-LIBS= -lpthread
+LIBS= -lpthread -lrt
 
 _DEPS = config.h myTypes.h interface.h model.h viewer.h controller.h list.h myFunctions.h globVar.h timing.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
