@@ -52,6 +52,10 @@ void *viewer(void *inPar){
 	while (!gracefulDegradation){
 		// pthread_cond_wait(&condWakeViewer, &mtxWakeViewer);
 	}
+	// Release mutexes
+	pthread_mutex_unlock(&mtxDevPos);
+	pthread_mutex_unlock(&mtxWakeViewer);
+
 
 	pthread_exit(NULL);
 }

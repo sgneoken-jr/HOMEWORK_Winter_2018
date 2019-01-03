@@ -5,6 +5,7 @@
 
 
 bool gracefulDegradation;
+bool modelReady;
 
 // Buffers as linked lists
 Node *DeviceInput;	// The maximum size should be 2; no need of lists

@@ -34,17 +34,27 @@ void *model(void* inPar){
 	#ifdef DEBUG
 	printf("%s\n", "Model telling Interface it is ready");
 	#endif
+	modelReady = true;
 	pthread_cond_signal(&condModelReady);
 
 	while (!gracefulDegradation){
 
 		#ifdef DEBUG
-		printf("%s\n", "Model waiting to read from buffer");
+		printf("%s\n", "Model waiting to read from DeviceInput");
 		#endif
+		// if gracefulDegradation is set to true while model is waiting and a signal does not come it is a problem
 		pthread_cond_wait(&condDevIn, &mtxDevIn);
+		if (gracefulDegradation){ // avoid deadlock in gracefulDegradation
+			break;
+		}
+
 		#ifdef DEBUG
 		printf("%s\n", "[Model]: I got up!");
 		#endif
+		#ifdef DEBUG
+		printList(DeviceInput, getName(DeviceInput));
+		#endif
+
 		// data acquired
 		incr = DeviceInput->value.space;
 		currTime = DeviceInput->value.time;
@@ -62,13 +72,14 @@ void *model(void* inPar){
 		// clear the DeviceInput list
 
 
-		#ifdef DEBUG
-		printList(DevicePosition, getName(DevicePosition));
-		#endif
+		// #ifdef DEBUG
+		// printList(DevicePosition, getName(DevicePosition));
+		// #endif
 	}
 
-
-
+	// Releasing mutexes
+	pthread_mutex_unlock(&mtxDevIn);
+	pthread_mutex_unlock(&mtxDevPos);
 
 	pthread_exit(NULL);
 }

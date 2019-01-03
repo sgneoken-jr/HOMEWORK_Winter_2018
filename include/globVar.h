@@ -6,6 +6,7 @@
 #include "list.h"
 
 extern bool gracefulDegradation;
+extern bool modelReady;
 
 extern Node* DeviceInput;
 extern Node *DevicePosition;

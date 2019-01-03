@@ -39,20 +39,23 @@ int fileRead (char *fileName) {
     double change;
     Coordinate newCoord;
 
+		#ifdef DEBUG
+		printf("%s\n", "[Interface]: Waiting for model to be ready");
+		#endif
+		while (!modelReady){ // to avoid busy waiting and saving from random awakenings of the model
+			pthread_cond_wait(&condModelReady, &mtxModelReady); //order of execution
+		}
 
-
-    while ( fgets(line, sizeof(line), device_file) ) {
+    while ( fgets(line, sizeof(line), device_file) && !gracefulDegradation) {
         sscanf(line, "%d %lf", &time, &change);
         newCoord.time = time;
         newCoord.space = change;
 
-				#ifdef DEBUG
-				printf("%s\n", "[Interface]: Waiting for model to be ready");
-				#endif
-				pthread_cond_wait(&condModelReady, &mtxModelReady); //order of execution
-
         // Append data to DeviceInput list
 				pthread_cond_wait(&condWakeInterface, &mtxWakeInterface); // Timing
+				if (gracefulDegradation){ // avoid deadlock in gracefulDegradation
+					break;
+				}
 				#ifdef DEBUG
 				printf("%s\n", "[Interface]: I got up!");
 				#endif
@@ -61,26 +64,27 @@ int fileRead (char *fileName) {
         // signal the data was appended to Model
         pthread_cond_signal(&condDevIn);
 
-				#ifdef DEBUG
-		    printList(DeviceInput, getName(DeviceInput));
-		    #endif
-        #ifdef PRINT_ALL
-        printf("At time: %d change of position: %lf\n", time, change);
-        #endif
+				// #ifdef DEBUG
+		    // printList(DeviceInput, getName(DeviceInput));
+		    // #endif
     }
 
+		pthread_cond_signal(&condDevIn); // Otherwise Model could be in a deadlock
 
-/*    #ifdef TESTING*/
-/*    DeviceInput = freeList(DeviceInput);*/
-/*    printList(DeviceInput, getName(DeviceInput));*/
-/*    #endif*/
+		// Release mutexes
+		pthread_mutex_unlock(&mtxDevIn);
+		pthread_mutex_unlock(&mtxModelReady);
+		pthread_mutex_unlock(&mtxWakeInterface);
+
+
+		#ifdef EASTER_EGGS
+		if(fgets(line, sizeof(line), device_file) == NULL){
+			char *str = "The file is wholly read!";
+			printHappy(str);
+		}
+		#endif
 
     fclose(device_file);
-
-    #ifdef EASTER_EGGS
-    char *str = "The file is wholly read!";
-    printHappy(str);
-    #endif
 
     return(0);
 }

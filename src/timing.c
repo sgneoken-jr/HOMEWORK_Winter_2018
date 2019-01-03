@@ -120,6 +120,11 @@ void *timing(void *inPar){
       // #endif
   }
 
+  // Let everyone know of the graceful degradation
+  pthread_cond_broadcast(&condDevIn);
+  pthread_cond_broadcast(&condDevPos);
+  pthread_cond_signal(&condWakeInterface); // Otherwise interface could be in a deadlock
+
   if (timer_delete(timerID[TIMER_NEW_DATA_TAG]) == -1) {
     printf("%s\n", "Error in deleting a timer");
   }
@@ -129,10 +134,10 @@ void *timing(void *inPar){
 
 void sigHandler(int sig, siginfo_t* evp, void* ucontext){
   // time_t tim = time(0);
-  #ifdef DEBUG
-  printf("Timer tag: %d, signo: %d i.e. %s\n",
-    evp->si_value.sival_int, sig, strsignal(sig));
-  #endif
+  // #ifdef DEBUG
+  // printf("Timer tag: %d, signo: %d i.e. %s\n",
+  //   evp->si_value.sival_int, sig, strsignal(sig));
+  // #endif
 
   switch (sig){
     case SIGINT:
