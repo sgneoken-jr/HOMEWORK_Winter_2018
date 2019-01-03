@@ -66,7 +66,7 @@ int main(int argc, char **argv){
 
 	// Thread create
 
-	if (pthread_create(&timingID, NULL, (void*)timing, NULL) != 0){
+	if (pthread_create(&timingID, NULL, (void*)timing, (void *)&cmdLinePar) != 0){
 			printf("Thread create: timing\n");
 			exit(EXIT_FAILURE);
 	}

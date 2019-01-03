@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "timing.h"
 #include "config.h"
@@ -22,26 +23,26 @@
 // - Create a single dedicated thread that accepts incoming signals using sigwaitinfo(),
 // sigtimedwait(), or sigwait(). We described sigwaitinfo() and sigtimedwait()
 
+static unsigned int counter;
+
 void *timing(void *inPar){
   #ifdef DEBUG
   printf("%s\n", "Timing thread launched...");
   #endif
 
+  counter = 0; // static for limiting the visibility to this c file
+
   // Let's empty the signal mask. This thread gotta catch 'em all
   sigset_t myMask;
   sigemptyset(&myMask);
-  if (pthread_sigmask(SIG_BLOCK, &myMask, NULL) != 0){
+  if (pthread_sigmask(SIG_SETMASK, &myMask, NULL) != 0){
     printf("Error in setting the process mask\n");
     exit(EXIT_FAILURE);
   }
 
-  // Definitions
-  timerTag tTag;
-  struct sigevent sigx;
-  struct itimerspec val;
+  // Handlers
   struct sigaction act;
 
-  // Installing the handlers
   sigemptyset(&act.sa_mask);
   act.sa_flags = SA_SIGINFO;
   act.sa_sigaction = sigHandler;
@@ -67,7 +68,11 @@ void *timing(void *inPar){
   int ctrlInt = myPar->ctrlPer;
 	int viewInt = myPar->viewPer;
 
+
   // Timers
+  timerTag tTag;
+  struct sigevent sigx;
+  struct itimerspec val;
   tTag = NUM_TAGS; // timer_tag is an enum type of mine
   timer_t timerID[(int)tTag];
 
@@ -76,15 +81,16 @@ void *timing(void *inPar){
 
   tTag = TIMER_NEW_DATA_TAG;
   sigx.sigev_value.sival_int = (int)tTag;
-  if (timer_create(CLOCK_REALTIME, &sigx, &timerID[tTag]) == -1) {
+  if (timer_create(CLOCK_REALTIME, &sigx, &timerID[(int)tTag]) == -1) {
     printf("%s\n", "Error in creating a timer");
     exit(EXIT_FAILURE);
   }
 
   val.it_value.tv_sec = TIME_UNIT;
   val.it_value.tv_nsec = NTIME_UNIT;
-  val.it_interval.tv_sec = 2*TIME_UNIT;
+  val.it_interval.tv_sec = TIME_UNIT;
   val.it_interval.tv_nsec = NTIME_UNIT;
+
 
   // By   default,   the    initial    expiration    time    specified    in
   //     new_value->it_value  is interpreted relative to the current time on the
@@ -97,14 +103,21 @@ void *timing(void *inPar){
   //     count (see timer_getoverrun(2)) will be set correctly.
 
 
-  if (timer_settime(timerID[TIMER_NEW_DATA_TAG], 0, &val, NULL) == -1) {
+  if (timer_settime(timerID[(int)tTag], 0, &val, NULL) == -1) {
     printf("%s\n", "Error in setting a timer");
     exit(EXIT_FAILURE);
   }
 
+  unsigned int lastCounter = 0;
+
   while (!gracefulDegradation){
-    for (int i = 0; i < 5; ++i){
+    for (int i = 0; i < 10; ++i){
       pause();
+
+      lastCounter = counterManager(&counter, &lastCounter, &ctrlInt, &viewInt);
+      #ifdef DEBUG
+      printf("%s %d\n", "The actual value of the counter is:", counter);
+      #endif
     //   if (sigwait(&waitedSignals, &sig) != 0){
     //       printf("%s\n", "Error in sigwait");}
     //       //maybe I don't need to exit
@@ -120,10 +133,10 @@ void *timing(void *inPar){
 }
 
 void sigHandler(int sig, siginfo_t* evp, void* ucontext){
-  time_t tim = time(0);
-  printf("Timer tag: %d, signo: %d, %s \n", evp->si_value.sival_int, sig, ctime(&tim));
-
-  unsigned int counter = 0; // This may cause overflows
+  // time_t tim = time(0);
+  #ifdef DEBUG
+  printf("Timer tag: %d, signo: %d\n", evp->si_value.sival_int, sig);
+  #endif
 
   switch (sig){
     case SIGINT:
@@ -136,7 +149,7 @@ void sigHandler(int sig, siginfo_t* evp, void* ucontext){
       #ifdef DEBUG
       printf("%s\n", "Got signal SIGUSR1");
       #endif
-      counter++;
+      counter = (counter + 1) % UINT_MAX; // this can cause a delay when the counter resets
       break;
     default:
       // do nothing different from default
@@ -144,15 +157,23 @@ void sigHandler(int sig, siginfo_t* evp, void* ucontext){
   }
 }
 
-void timerHandler(unsigned int counter){
-  // Wake interface
+unsigned int counterManager(
+  unsigned int *counter, unsigned int *lastCounter, int *ctrlInt, int *viewInt
+){
+  if (*lastCounter < *counter){ // just got SIGUSR1
+    // Wake interface
 
-  if (counter % ctrlInt == ctrlInt){
-    // Wake controller
+    if (*counter % *ctrlInt == (*ctrlInt - 1)){
+      // Wake controller
+    }
+
+    if (*counter % *viewInt == (*viewInt - 1)){
+      // Wake viewer
+    }
+
+    return *counter; // last counter ought to be updated
   }
-  if (counter % viewInt == viewInt){
-    // Wake viewer
+  else{ // the signal received was not SIGUSR1
+    return *lastCounter;  // last counter can remain the current one
   }
-
-
 }

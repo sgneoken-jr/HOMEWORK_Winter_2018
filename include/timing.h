@@ -11,7 +11,10 @@ typedef enum {
 void *timing(void *inPar);
 
 void sigHandler(int sig, siginfo_t* evp, void* ucontext);
-void timerHandler(unsigned int counter);
+
+unsigned int counterManager(
+  unsigned int *counter, unsigned int *lastCounter, int *ctrlInt, int *viewInt
+);
 
 
 #endif
