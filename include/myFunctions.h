@@ -12,6 +12,8 @@ int parseInput(InputPar *par, int argc, char **argv, char *fileName);
 
 void printInputPar(InputPar *par);
 
+void upcase(char *str);
+
 /*============================================================================*/
 void printHappy(char *msg);
 

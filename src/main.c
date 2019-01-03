@@ -155,6 +155,26 @@ void initMutex(void){
 			printf("Mutex initialization: mtxDevPos\n");
 			exit(EXIT_FAILURE);
 	}
+
+	if (pthread_mutex_init(&mtxModelReady, NULL) != 0){
+			printf("Mutex initialization: mtxModelReady\n");
+			exit(EXIT_FAILURE);
+	}
+
+	if (pthread_mutex_init(&mtxWakeInterface, NULL) != 0){
+			printf("Mutex initialization: mtxWakeInterface\n");
+			exit(EXIT_FAILURE);
+	}
+
+	if (pthread_mutex_init(&mtxWakeController, NULL) != 0){
+			printf("Mutex initialization: mtxWakeController\n");
+			exit(EXIT_FAILURE);
+	}
+
+	if (pthread_mutex_init(&mtxWakeViewer, NULL) != 0){
+			printf("Mutex initialization: mtxWakeViewer\n");
+			exit(EXIT_FAILURE);
+	}
 }
 
 void initCondVar(void){
@@ -172,4 +192,26 @@ void initCondVar(void){
 			printf("Condition Variable initialization: condDevPos\n");
 			exit(EXIT_FAILURE);
 	}
+
+	if (pthread_cond_init(&condModelReady, NULL) != 0){
+			printf("Condition Variable initialization: condModelReady\n");
+			exit(EXIT_FAILURE);
+	}
+
+	if (pthread_cond_init(&condWakeInterface, NULL) != 0){
+			printf("Condition Variable initialization: condWakeInterface\n");
+			exit(EXIT_FAILURE);
+	}
+
+	if (pthread_cond_init(&condWakeController, NULL) != 0){
+			printf("Condition Variable initialization: condWakeController\n");
+			exit(EXIT_FAILURE);
+	}
+
+	if (pthread_cond_init(&condWakeViewer, NULL) != 0){
+			printf("Condition Variable initialization: condWakeViewer\n");
+			exit(EXIT_FAILURE);
+	}
+
+
 }

@@ -50,7 +50,7 @@ void *viewer(void *inPar){
 /*	system(newWindow);*/
 
 	while (!gracefulDegradation){
-
+		// pthread_cond_wait(&condWakeViewer, &mtxWakeViewer);
 	}
 
 	pthread_exit(NULL);

@@ -36,16 +36,15 @@ void *model(void* inPar){
 	#endif
 	pthread_cond_signal(&condModelReady);
 
-
-	while (!gracefulDegradation){ // EDIT HERE FOR GRACEFUL DEGRADATION
-		// when it's time, take the data from DeviceInput:
-		// order of execution problem: no signalC before creating the thread
+	while (!gracefulDegradation){
 
 		#ifdef DEBUG
 		printf("%s\n", "Model waiting to read from buffer");
 		#endif
 		pthread_cond_wait(&condDevIn, &mtxDevIn);
-
+		#ifdef DEBUG
+		printf("%s\n", "[Model]: I got up!");
+		#endif
 		// data acquired
 		incr = DeviceInput->value.space;
 		currTime = DeviceInput->value.time;
@@ -53,17 +52,19 @@ void *model(void* inPar){
 		// update position (with hysteresis)
 		currPos = updatePosition(currPos, incr, lowerLimit, upperLimit);
 
-		// fill the list DevicePosition
+		// fill the struct coord to append to DevicePosition
 		newPosCoord.space = currPos;
 		newPosCoord.time = currTime;
 
-
 		// append to DevicePosition list
 		DevicePosition = addToList(DevicePosition, &newPosCoord);
-/*		pthread_cond_signal(&condDevPos, &mtxDevPos); // must be timed*/
 
+		// clear the DeviceInput list
+
+
+		#ifdef DEBUG
 		printList(DevicePosition, getName(DevicePosition));
-
+		#endif
 	}
 
 

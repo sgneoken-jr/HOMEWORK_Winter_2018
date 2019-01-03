@@ -24,7 +24,18 @@ extern pthread_mutex_t mtxDevPos;	// mutex for monitoring DevicePosition
 extern pthread_cond_t condDevPos;	// cond for monitoring DevicePosition
 
 // Synchronization
-extern pthread_cond_t condModelReady;
 extern pthread_mutex_t mtxModelReady;
+extern pthread_cond_t condModelReady;
+
+
+extern pthread_mutex_t mtxWakeInterface;
+extern pthread_cond_t condWakeInterface;
+
+extern pthread_mutex_t mtxWakeController;
+extern pthread_cond_t condWakeController;
+
+extern pthread_mutex_t mtxWakeViewer;
+extern pthread_cond_t condWakeViewer;
+
 
 #endif

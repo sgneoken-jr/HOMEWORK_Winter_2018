@@ -39,27 +39,36 @@ int fileRead (char *fileName) {
     double change;
     Coordinate newCoord;
 
-		
+
 
     while ( fgets(line, sizeof(line), device_file) ) {
         sscanf(line, "%d %lf", &time, &change);
         newCoord.time = time;
         newCoord.space = change;
 
+				#ifdef DEBUG
+				printf("%s\n", "[Interface]: Waiting for model to be ready");
+				#endif
 				pthread_cond_wait(&condModelReady, &mtxModelReady); //order of execution
+
         // Append data to DeviceInput list
+				pthread_cond_wait(&condWakeInterface, &mtxWakeInterface); // Timing
+				#ifdef DEBUG
+				printf("%s\n", "[Interface]: I got up!");
+				#endif
         DeviceInput = addToList(DeviceInput, &newCoord); // a new node is created
 
-        // signal the data was appended
+        // signal the data was appended to Model
         pthread_cond_signal(&condDevIn);
 
+				#ifdef DEBUG
+		    printList(DeviceInput, getName(DeviceInput));
+		    #endif
         #ifdef PRINT_ALL
         printf("At time: %d change of position: %lf\n", time, change);
         #endif
     }
-    #ifdef DEBUG
-    printList(DeviceInput, getName(DeviceInput));
-    #endif
+
 
 /*    #ifdef TESTING*/
 /*    DeviceInput = freeList(DeviceInput);*/

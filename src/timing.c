@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -10,6 +11,7 @@
 #include "timing.h"
 #include "config.h"
 #include "myTypes.h"
+#include "myFunctions.h"
 #include "globVar.h"
 
 // From the Linux programming interface:
@@ -111,18 +113,11 @@ void *timing(void *inPar){
   unsigned int lastCounter = 0;
 
   while (!gracefulDegradation){
-    for (int i = 0; i < 10; ++i){
       pause();
-
       lastCounter = counterManager(&counter, &lastCounter, &ctrlInt, &viewInt);
-      #ifdef DEBUG
-      printf("%s %d\n", "The actual value of the counter is:", counter);
-      #endif
-    //   if (sigwait(&waitedSignals, &sig) != 0){
-    //       printf("%s\n", "Error in sigwait");}
-    //       //maybe I don't need to exit
-
-    }
+      // #ifdef DEBUG
+      // printf("%s %d\n", "The actual value of the counter is:", counter);
+      // #endif
   }
 
   if (timer_delete(timerID[TIMER_NEW_DATA_TAG]) == -1) {
@@ -135,7 +130,8 @@ void *timing(void *inPar){
 void sigHandler(int sig, siginfo_t* evp, void* ucontext){
   // time_t tim = time(0);
   #ifdef DEBUG
-  printf("Timer tag: %d, signo: %d\n", evp->si_value.sival_int, sig);
+  printf("Timer tag: %d, signo: %d i.e. %s\n",
+    evp->si_value.sival_int, sig, strsignal(sig));
   #endif
 
   switch (sig){
@@ -146,7 +142,7 @@ void sigHandler(int sig, siginfo_t* evp, void* ucontext){
       exit(1);
       break;
     case SIGUSR1:
-      #ifdef DEBUG
+      #ifdef PRINT_ALL
       printf("%s\n", "Got signal SIGUSR1");
       #endif
       counter = (counter + 1) % UINT_MAX; // this can cause a delay when the counter resets
@@ -162,13 +158,16 @@ unsigned int counterManager(
 ){
   if (*lastCounter < *counter){ // just got SIGUSR1
     // Wake interface
+    pthread_cond_signal(&condWakeInterface);
 
     if (*counter % *ctrlInt == (*ctrlInt - 1)){
       // Wake controller
+      pthread_cond_signal(&condWakeController);
     }
 
     if (*counter % *viewInt == (*viewInt - 1)){
       // Wake viewer
+      pthread_cond_signal(&condWakeViewer);
     }
 
     return *counter; // last counter ought to be updated

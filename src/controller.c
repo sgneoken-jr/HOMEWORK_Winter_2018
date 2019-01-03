@@ -33,6 +33,9 @@ void *controller(void* inputParameters){
 	fprintf(device_file, "%-9s %15.9s\n\n", "Time", "Position"); //resolution is fixed by the format
 
 	while (!gracefulDegradation){
+		
+// pthread_cond_wait(&condWakeController, &mtxWakeController);
+
 		// currTime = ;
 		// currPos = ;
 
