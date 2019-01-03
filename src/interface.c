@@ -15,10 +15,16 @@ void *interface(void *fileName){
 	#ifdef DEBUG
 	printf("Interface thread lauched...\n");
 	#endif
-	if (fileRead((char*)fileName) != 0){
-		printf("Couldn't read the file!");
-		exit(EXIT_FAILURE);
-	}
+	fileRead((char*)fileName);
+	// if (fileRead((char*)fileName) != 0){
+	// 	printf("Couldn't read the file!");
+	// 	exit(EXIT_FAILURE);
+	// }
+
+	// Release mutexes
+	pthread_mutex_unlock(&mtxDevIn);
+	pthread_mutex_unlock(&mtxModelReady);
+	pthread_mutex_unlock(&mtxWakeInterface);
 
 	pthread_exit(NULL);
 }
@@ -70,11 +76,6 @@ int fileRead (char *fileName) {
     }
 
 		pthread_cond_signal(&condDevIn); // Otherwise Model could be in a deadlock
-
-		// Release mutexes
-		pthread_mutex_unlock(&mtxDevIn);
-		pthread_mutex_unlock(&mtxModelReady);
-		pthread_mutex_unlock(&mtxWakeInterface);
 
 
 		#ifdef EASTER_EGGS

@@ -25,7 +25,7 @@ void joinThreads(void);
 
 void initMutex(void);
 void initCondVar(void);
-void unlockMutex(void); // for safety, before destroying them
+void releaseMutex(void); // for safety, before destroying them
 void destroyMutex(void);
 void destroyCondVar(void);
 
@@ -73,7 +73,7 @@ int main(int argc, char **argv){
 	joinThreads();
 
 	// Release and clean up all the mutex
-	unlockMutex();
+	releaseMutex();
 	destroyMutex();
 	destroyCondVar();
 
@@ -222,8 +222,53 @@ void initCondVar(void){
 	}
 }
 
-void unlockMutex(void){ // for safety, before destroying them
+void releaseMutex(void){ // for safety, before destroying them
 	int s;
+	// To avoid EBUSY error, I must lock them and then unlock them
+
+	if((s = pthread_mutex_lock(&mtxDevIn)) != 0){
+		printf("Mutex locking: mtxDevIn\n");
+		#ifdef DEBUG
+		printf("Error: %d\n", s);
+		#endif
+	}
+
+	if((s = pthread_mutex_lock(&mtxDevPos)) != 0){
+		printf("Mutex locking: mtxDevPos\n");
+		#ifdef DEBUG
+		printf("Error: %d\n", s);
+		#endif
+	}
+
+	if((s = pthread_mutex_lock(&mtxModelReady)) != 0){
+		printf("Mutex locking: mtxModelReady\n");
+		#ifdef DEBUG
+		printf("Error: %d\n", s);
+		#endif
+	}
+
+	if((s = pthread_mutex_lock(&mtxWakeController)) != 0){
+		printf("Mutex locking: mtxWakeInterface\n");
+		#ifdef DEBUG
+		printf("Error: %d\n", s);
+		#endif
+	}
+
+	if((s = pthread_mutex_lock(&mtxWakeInterface)) != 0){
+		printf("Mutex locking: mtxWakeController\n");
+		#ifdef DEBUG
+		printf("Error: %d\n", s);
+		#endif
+	}
+
+	if((s = pthread_mutex_lock(&mtxWakeViewer)) != 0){
+		printf("Mutex locking: mtxWakeViewer\n");
+		#ifdef DEBUG
+		printf("Error: %d\n", s);
+		#endif
+	}
+
+
 	if((s = pthread_mutex_unlock(&mtxDevIn)) != 0){
 		printf("Mutex unlocking: mtxDevIn\n");
 		#ifdef DEBUG
@@ -277,35 +322,35 @@ void destroyMutex(void){
 			#endif
 	}
 
-	if ((s =pthread_mutex_destroy(&mtxDevPos)) != 0){
+	if ((s = pthread_mutex_destroy(&mtxDevPos)) != 0){
 			printf("Mutex destruction: mtxDevPos\n");
 			#ifdef DEBUG
 			printf("Error: %d\n", s);
 			#endif
 	}
 
-	if ((s =pthread_mutex_destroy(&mtxModelReady)) != 0){
+	if ((s = pthread_mutex_destroy(&mtxModelReady)) != 0){
 			printf("Mutex destruction: mtxModelReady\n");
 			#ifdef DEBUG
 			printf("Error: %d\n", s);
 			#endif
 	}
 
-	if ((s =pthread_mutex_destroy(&mtxWakeInterface)) != 0){
+	if ((s = pthread_mutex_destroy(&mtxWakeInterface)) != 0){
 			printf("Mutex destruction: mtxWakeInterface\n");
 			#ifdef DEBUG
 			printf("Error: %d\n", s);
 			#endif
 	}
 
-	if ((s =pthread_mutex_destroy(&mtxWakeController)) != 0){
+	if ((s = pthread_mutex_destroy(&mtxWakeController)) != 0){
 			printf("Mutex destruction: mtxWakeController\n");
 			#ifdef DEBUG
 			printf("Error: %d\n", s);
 			#endif
 	}
 
-	if ((s =pthread_mutex_destroy(&mtxWakeViewer)) != 0){
+	if ((s = pthread_mutex_destroy(&mtxWakeViewer)) != 0){
 			printf("Mutex destruction: mtxWakeViewer\n");
 			#ifdef DEBUG
 			printf("Error: %d\n", s);

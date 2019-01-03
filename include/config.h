@@ -14,6 +14,7 @@
 #define TIME_UNIT           1
 #define NTIME_UNIT          0
 #define MAX_LINE_LENGTH     80
+#define ERROR_DESCR_LENGTH  256
 
 // For visulization
 #define BAR_LENGTH          100
