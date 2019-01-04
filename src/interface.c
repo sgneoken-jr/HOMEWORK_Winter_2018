@@ -43,7 +43,8 @@ int fileRead (char *fileName) {
   device_file = fopen(fileName, "r");
 
   if (device_file == NULL) {
-      printf("Can't open %s\n", fileName);
+      printf("[Interface] Can't open %s\n", fileName);
+			printf("%s\n", "[Interface] Suggestion: did you write the correct relative path?");
       exit(EXIT_FAILURE);
   }
 
