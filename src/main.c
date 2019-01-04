@@ -73,6 +73,8 @@ int main(int argc, char **argv){
 	joinThreads();
 
 	// Release and clean up all the mutex
+	freeList(DeviceInput);
+	freeList(DevicePosition);
 	// releaseMutex();
 	destroyMutex();
 	destroyCondVar();
