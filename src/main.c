@@ -41,8 +41,8 @@ int main(int argc, char **argv){
 	DevicePosition = NULL;
 	gracefulDegradation = false;
 	modelReady = false;
-	// inputFileLastTime = -1; // Initializing it as negative is safer (time will always be a positive int)
-
+	lastCtrl = 0;
+	lastView = 0;
 
 	// Input parsing
 	if ((status = parseInput(&cmdLinePar, argc, argv, fileName)) != 0){

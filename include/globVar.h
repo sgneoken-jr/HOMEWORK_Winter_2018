@@ -8,7 +8,8 @@
 extern bool gracefulDegradation;
 extern bool modelReady;
 extern bool everyoneJoined;
-// extern int inputFileLastTime;
+extern int lastView;
+extern int lastCtrl;
 
 extern Node* DeviceInput;
 extern Node *DevicePosition;

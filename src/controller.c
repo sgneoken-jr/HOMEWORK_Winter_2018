@@ -6,6 +6,7 @@
 #include "controller.h"
 #include "config.h"
 #include "myTypes.h"
+#include "myFunctions.h"
 #include "globVar.h"
 
 void *controller(void* inputParameters){
@@ -27,6 +28,7 @@ void *controller(void* inputParameters){
 	fprintf(device_file, "%-9s %15.9s\n\n", "Time", "Position"); //resolution is fixed by the format
 
 	Node *currNode, *previousNode, *correctOrderList;
+
 	Coordinate correctOrderCoord;
 
 	while (!gracefulDegradation){
@@ -42,6 +44,9 @@ void *controller(void* inputParameters){
 
 		// Getting the current Node pointer
 		currNode = DevicePosition;
+		if (currNode == NULL){
+			break;
+		}
 
 		if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
 			printf("[Controller] Error %d in unlocking mutex\n", status);
@@ -55,12 +60,17 @@ void *controller(void* inputParameters){
 			// reverse order in local auxiliary list
 		}
 
+		lastCtrl = currNode->value.time; // last time considered by controller
 		previousNode = currNode;
 
 		for (Node *p = correctOrderList; p != NULL; p = p->next){
 			fprintf(device_file, "%-9d %15.6lf\n", p->value.time, p->value.space);
 		}
+		// Free auxiliary list
 		correctOrderList = freeList(correctOrderList);
+
+		// Clean up the buffer
+		cleanBuffer();
 	}
 
 	// Release mutexes
@@ -75,4 +85,21 @@ void *controller(void* inputParameters){
 	fclose(device_file);
 
 	pthread_exit(NULL);
+}
+
+void cleanBuffer(void){
+	Node *freeFromHere;
+	struct searchThis whatToFreeFrom;
+	whatToFreeFrom.type = timeType;
+
+	whatToFreeFrom.val.i = MIN(lastView, lastCtrl);
+	#ifdef DEBUG
+	printf("[Controller] time to delete from: %d\n", whatToFreeFrom.val.i);
+	#endif
+	if ((freeFromHere = searchList(DevicePosition, &whatToFreeFrom)) != NULL){
+		for (Node *p = freeFromHere; p != NULL; p = p->next){
+			DevicePosition = deleteFromList(DevicePosition, p->value.time);
+		}
+	}
+
 }

@@ -12,7 +12,6 @@
 #include "colors.h"
 
 
-
 void *viewer(void *inPar){
 	int status;
 	#ifdef DEBUG
@@ -71,6 +70,7 @@ void *viewer(void *inPar){
 			// reverse order in local auxiliary list
 		}
 
+		lastView = currNode->value.time; // last time considered by viewer
 		previousNode = currNode;
 
 		for (Node *p = correctOrderList; p != NULL; p = p->next){

@@ -64,7 +64,7 @@ void *model(void* inPar){
 		incr = DeviceInput->value.space;
 		currTime = DeviceInput->value.time;
 		// clear the DeviceInput list
-		// DeviceInput = deleteFromList(DeviceInput, currTime);
+		DeviceInput = deleteFromList(DeviceInput, currTime);
 
 		if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
 			printf("[Model] Trying to unlock on DevIn gave error: %d\n", status);
@@ -90,9 +90,9 @@ void *model(void* inPar){
 			printf("[Model] Error %d in unlocking mutex\n", status);
 		}
 		//------------------------------------------------------------------------//
-		// #ifdef DEBUG
-		// printList(DevicePosition, getName(DevicePosition));
-		// #endif
+		#ifdef DEBUG
+		printList(DevicePosition, getName(DevicePosition));
+		#endif
 	}
 
 	pthread_exit(NULL);

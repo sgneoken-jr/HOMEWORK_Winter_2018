@@ -2,6 +2,7 @@
 #define MYFUNCTIONS_H
 
 #define ABS(N) ((N<0)?(-N):(N))
+#define MIN(X,Y) ((X<Y)?(X):(Y))
 
 /*============================================================================*/
 /* Input Parsing */

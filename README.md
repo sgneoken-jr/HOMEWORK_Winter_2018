@@ -35,7 +35,9 @@ La thread `Timing` è l'unica la cui maschera dei segnali non sia piena e l'unic
 Tale thread, a ogni unità di tempo (scadenza del timer), sveglia (tramite `pthread_cond_signal()`) `Interface` che produce un dato, la quale a sua volta sveglia (allo stesso modo) `Model`. A multipli dell'unità di tempo decisi dall'utente, la thread `Timing` sveglia anche `Viewer` e `Controller` (sempre con `pthread_cond_signal()`).
 
 ## Osservazioni
-* L'aver implementato i buffer `DeviceInput` e `DevicePosition` con delle liste concatenate ha permesso una gestione rapida e snella delle sezioni critiche della concorrenza (lettura/scrittura sui buffer), dato che non ci sono i problemi di blocchi e sblocchi di mutex sugli array circolari. In lettura, specialmente, una volta salvato l'indirizzo del nodo, si posso eseguire tutte le altre operazioni in sezione non critica.
+* L'aver implementato i buffer `DeviceInput` e `DevicePosition` con delle liste concatenate ha permesso una gestione rapida e snella delle sezioni critiche della concorrenza (lettura/scrittura sui buffer), dato che non ci sono i problemi di blocchi e sblocchi di mutex sugli array circolari. In lettura, specialmente, una volta salvato l'indirizzo del nodo, si possono eseguire tutte le altre operazioni in sezione non critica.
+* Si suppone che il tempo sia non negativo strettamente crescente.
+* Il compito di pulire `DevicePosition` viene affidato al controller per convenzione, ma utilizza variabili globali di ultima lettura sia del controllore che del viewer.
 
 ## Istruzioni per la compilazione
 Una volta estratto l'archivio in un'opportuna cartella, procedere come segue:
