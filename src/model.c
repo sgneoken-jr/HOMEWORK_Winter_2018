@@ -43,7 +43,6 @@ void *model(void* inPar){
 	}
 
 	while (!gracefulDegradation){
-
 		// #ifdef DEBUG
 		// printf("%s\n", "[Model] Waiting to read from DeviceInput...");
 		// #endif
@@ -58,10 +57,6 @@ void *model(void* inPar){
 		#ifdef DEBUG
 		printf("%s\n", "[Model]: I got up!");
 		#endif
-		// #ifdef DEBUG
-		// printf("%s\n", "[Model]");
-		// printList(DeviceInput, getName(DeviceInput));
-		// #endif
 		//------------------------------------------------------------------------//
 		// CRITICAL SECTION on DeviceInput
 		// Here mutex mtxDevIn should already be locked from waitC
@@ -95,6 +90,9 @@ void *model(void* inPar){
 			printf("[Model] Error %d in unlocking mutex\n", status);
 		}
 		//------------------------------------------------------------------------//
+		// #ifdef DEBUG
+		// printList(DevicePosition, getName(DevicePosition));
+		// #endif
 	}
 
 	pthread_exit(NULL);

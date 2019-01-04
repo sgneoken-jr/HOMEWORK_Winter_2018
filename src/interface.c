@@ -17,20 +17,14 @@ void *interface(void *fileName){
 	printf("[Interface] Launched...\n");
 	#endif
 	fileRead((char*)fileName);
-	// if (fileRead((char*)fileName) != 0){
-	// 	printf("Couldn't read the file!");
-	// 	exit(EXIT_FAILURE);
-	// }
+	// #ifdef DEBUG
+	// printf("[Interface] Last time read: %d\n", inputFileLastTime);
+	// #endif
 
 	// Release mutexes
-
-	// Make sure to release the mutexes and let model know
 	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
 		printf("[Interface] Error %d in unlocking mutex", status);
 	}
-	if((status = pthread_cond_signal(&condDevIn)) != 0){
-		printf("[Interface] Error %d in signaling\n", status);
-	} // Otherwise Model could be in a deadlock
 
 	if((status = pthread_mutex_unlock(&mtxWakeInterface)) != 0){
 		printf("[Interface] Error %d in unlocking mutex", status);
@@ -39,7 +33,8 @@ void *interface(void *fileName){
 	pthread_exit(NULL);
 }
 
-
+// This is the function reading from the input file.
+// It returns the last time read from the input file.
 int fileRead (char *fileName) {
 	int status;
   FILE *device_file;
@@ -107,15 +102,9 @@ int fileRead (char *fileName) {
 	    // #endif
   }
 
-	#ifdef DEBUG
-	printList(DeviceInput, getName(DeviceInput));
-	#endif
-
-
-	// if((status = pthread_cond_signal(&condDevIn)) != 0){
-	// 	printf("[Interface] Error %d in signaling\n", status);
-	// } // Otherwise Model could be in a deadlock
-
+	// #ifdef DEBUG
+	// printList(DeviceInput, getName(DeviceInput));
+	// #endif
 
 	#ifdef EASTER_EGGS
 	if(fgets(line, sizeof(line), device_file) == NULL){
@@ -131,5 +120,5 @@ int fileRead (char *fileName) {
 
   fclose(device_file);
 
-  return(0);
+  return(time);
 }

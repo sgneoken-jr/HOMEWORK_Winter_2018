@@ -41,6 +41,7 @@ int main(int argc, char **argv){
 	DevicePosition = NULL;
 	gracefulDegradation = false;
 	modelReady = false;
+	// inputFileLastTime = -1; // Initializing it as negative is safer (time will always be a positive int)
 
 
 	// Input parsing
