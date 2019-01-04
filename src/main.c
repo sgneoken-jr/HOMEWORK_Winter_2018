@@ -72,7 +72,7 @@ int main(int argc, char **argv){
 	joinThreads();
 
 	// Release and clean up all the mutex
-	releaseMutex();
+	// releaseMutex();
 	destroyMutex();
 	destroyCondVar();
 
@@ -140,6 +140,12 @@ void joinThreads(void){
 	printf("[Main] Interface joined\n");
 	#endif
 
+	// To prevent deadlock of Model if the file is completely read
+	if((status = pthread_cond_signal(&condDevIn)) != 0){
+		printf("[Main] Error %d in signaling condDevIn\n", status);
+	} // Otherwise Model could be in a deadlock
+
+
 	if ((status = pthread_join(modelID, NULL)) != 0){
 			printf("[Main] Error %d in thread join: model\n", status);
 			exit(EXIT_FAILURE);
@@ -147,6 +153,8 @@ void joinThreads(void){
 	#ifdef DEBUG
 	printf("[Main] Model joined\n");
 	#endif
+
+	everyoneJoined = true;  // allows timing to join, otherwise it keeps on waiting for signals
 
 	if ((status = pthread_join(timingID, NULL)) != 0){ // shall be the last, since is the one receiving signals
 			printf("[Main] Error %d in thread join: timing\n", status);
@@ -156,7 +164,7 @@ void joinThreads(void){
 	printf("[Main] Timing joined\n");
 	#endif
 }
-
+//----------------------------------------------------------------------------//
 // Creation, clean-up and destruction of mutexes and condition variables
 void initMutex(void){
 	int status;
@@ -226,32 +234,32 @@ void initCondVar(void){
 
 void releaseMutex(void){ // for safety, before destroying them
 	int status;
-	// To avoid EBUSY error, I must lock them and then unlock them
-
-	if((status = pthread_mutex_lock(&mtxDevIn)) != 0){
-		printf("[Main] Error %d in mutex locking: mtxDevIn\n", status);
-	}
-
-	if((status = pthread_mutex_lock(&mtxDevPos)) != 0){
-		printf("[Main] Error %d in mutex locking: mtxDevPos\n", status);
-	}
-
-	if((status = pthread_mutex_lock(&mtxModelReady)) != 0){
-		printf("[Main] Error %d in mutex locking: mtxModelReady\n", status);
-	}
-
-	if((status = pthread_mutex_lock(&mtxWakeController)) != 0){
-		printf("[Main] Error %d in mutex locking: mtxWakeInterface\n", status);
-	}
-
-	if((status = pthread_mutex_lock(&mtxWakeInterface)) != 0){
-		printf("[Main] Error %d in mutex locking: mtxWakeController\n", status);
-	}
-
-	if((status = pthread_mutex_lock(&mtxWakeViewer)) != 0){
-		printf("[Main] Error %d in mutex locking: mtxWakeViewer\n", status);
-	}
-
+	// // To avoid EBUSY error, I must lock them and then unlock them
+	//
+	// if((status = pthread_mutex_lock(&mtxDevIn)) != 0){
+	// 	printf("[Main] Error %d in mutex locking: mtxDevIn\n", status);
+	// }
+	//
+	// if((status = pthread_mutex_lock(&mtxDevPos)) != 0){
+	// 	printf("[Main] Error %d in mutex locking: mtxDevPos\n", status);
+	// }
+	//
+	// if((status = pthread_mutex_lock(&mtxModelReady)) != 0){
+	// 	printf("[Main] Error %d in mutex locking: mtxModelReady\n", status);
+	// }
+	//
+	// if((status = pthread_mutex_lock(&mtxWakeController)) != 0){
+	// 	printf("[Main] Error %d in mutex locking: mtxWakeInterface\n", status);
+	// }
+	//
+	// if((status = pthread_mutex_lock(&mtxWakeInterface)) != 0){
+	// 	printf("[Main] Error %d in mutex locking: mtxWakeController\n", status);
+	// }
+	//
+	// if((status = pthread_mutex_lock(&mtxWakeViewer)) != 0){
+	// 	printf("[Main] Error %d in mutex locking: mtxWakeViewer\n", status);
+	// }
+	//
 
 	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
 		printf("[Main] Error %d in mutex unlocking: mtxDevIn\n", status);

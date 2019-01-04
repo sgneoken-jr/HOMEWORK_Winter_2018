@@ -15,6 +15,8 @@ void printInputPar(InputPar *par);
 void upcase(char *str);
 
 /*============================================================================*/
+#ifdef EASTER_EGGS
 void printHappy(char *msg);
+#endif
 
 #endif

@@ -23,12 +23,15 @@ void *interface(void *fileName){
 	// }
 
 	// Release mutexes
+
+	// Make sure to release the mutexes and let model know
 	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
 		printf("[Interface] Error %d in unlocking mutex", status);
 	}
-	if((status = pthread_mutex_unlock(&mtxModelReady)) != 0){
-		printf("[Interface] Error %d in unlocking mutex", status);
-	}
+	if((status = pthread_cond_signal(&condDevIn)) != 0){
+		printf("[Interface] Error %d in signaling\n", status);
+	} // Otherwise Model could be in a deadlock
+
 	if((status = pthread_mutex_unlock(&mtxWakeInterface)) != 0){
 		printf("[Interface] Error %d in unlocking mutex", status);
 	}
@@ -56,11 +59,15 @@ int fileRead (char *fileName) {
 	#ifdef DEBUG
 	printf("%s\n", "[Interface]: Waiting for model to be ready");
 	#endif
-	while (!modelReady){ // to avoid busy waiting and saving from random awakenings of the model
+	while (!modelReady){ // to avoid busy waiting and to prevent from random awakenings of the model
 		if((status = pthread_cond_wait(&condModelReady, &mtxModelReady)) != 0){
 			printf("[Interface] Error %d in waiting\n", status);
 		} //order of execution
 	}
+	if((status = pthread_mutex_unlock(&mtxModelReady)) != 0){
+		printf("[Interface] Error %d in unlocking mutex", status);
+	}
+
 
   while ( fgets(line, sizeof(line), device_file) && !gracefulDegradation) {
       sscanf(line, "%d %lf", &time, &change);
@@ -77,8 +84,19 @@ int fileRead (char *fileName) {
 			#ifdef DEBUG
 			printf("%s\n", "[Interface]: I got up!");
 			#endif
+
+			//------------------------------------------------------------------------//
+			// CRITICAL SECTION on DeviceInput
+			if((status = pthread_mutex_lock(&mtxDevIn)) != 0){
+				printf("[Interface] Trying to lock on DevIn gave error: %d\n", status);
+			}
+
       DeviceInput = addToList(DeviceInput, &newCoord); // a new node is created
 
+			if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
+				printf("[Interface] Trying to unlock on DevIn gave error: %d\n", status);
+			}
+			//------------------------------------------------------------------------//
       // signal the data was appended to Model
       if((status = pthread_cond_signal(&condDevIn)) != 0){
 				printf("[Interface] Error %d in signaling\n", status);
@@ -89,9 +107,14 @@ int fileRead (char *fileName) {
 	    // #endif
   }
 
-	if((status = pthread_cond_signal(&condDevIn)) != 0){
-		printf("[Interface] Error %d in signaling\n", status);
-	} // Otherwise Model could be in a deadlock
+	#ifdef DEBUG
+	printList(DeviceInput, getName(DeviceInput));
+	#endif
+
+
+	// if((status = pthread_cond_signal(&condDevIn)) != 0){
+	// 	printf("[Interface] Error %d in signaling\n", status);
+	// } // Otherwise Model could be in a deadlock
 
 
 	#ifdef EASTER_EGGS

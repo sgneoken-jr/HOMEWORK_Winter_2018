@@ -7,6 +7,7 @@
 
 extern bool gracefulDegradation;
 extern bool modelReady;
+extern bool everyoneJoined;
 
 extern Node* DeviceInput;
 extern Node *DevicePosition;

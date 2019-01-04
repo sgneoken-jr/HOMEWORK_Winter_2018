@@ -4,6 +4,7 @@
 #include <sys/time.h>
 
 #include "viewer.h"
+#include "list.h"
 #include "config.h"
 #include "globVar.h"
 #include "myTypes.h"
@@ -23,38 +24,69 @@ void *viewer(void *inPar){
 	lowerLimit = myPar->posMin;
 	upperLimit = myPar->posMax;
 	int barLength = BAR_LENGTH;
-	int ind;
 
+	// Finding the index of the origin
 	double pos = 0.0;
-	int time = 0;
 	int zeroInd = (int)adaptToRange(&pos, &lowerLimit, &upperLimit, &barLength);
 
 	printHeader(&barLength, &zeroInd);
 
-	pos = 10.0;
-	ind = viewPos(&pos, &time, &lowerLimit, &upperLimit, &barLength, &zeroInd);
-
-
-	pos = 0.0;
-	time = 1000;
-	ind = viewPos(&pos, &time, &lowerLimit, &upperLimit, &barLength, &zeroInd);
-
-/*	int width = 104; //characters*/
-/*	int height = 50; //characters*/
-/*	int xPos = 100; //pixels*/
-/*	int yPos = 20; //pixels*/
-/*	char newWindow[80];*/
-/*	sprintf(newWindow, "gnome-terminal --geometry=%dx%d+%d+%d",*/
-/*		width, height, xPos, yPos);*/
-/*	system(newWindow);*/
+	// pos = 0.0;
+	// time = 1000;
+	// ind = viewPos(&pos, &time, &lowerLimit, &upperLimit, &barLength, &zeroInd);
+	//
+	Node *currNode, *previousNode, *correctOrderList; // saving in local
+	Coordinate correctOrderCoord;
+	previousNode = NULL;
+	correctOrderList = NULL;
+	#ifdef PRINT_BAR_INDEX
+	int ind; // The index in the bar can possibly be displayed if necessary
+	#endif
 
 	while (!gracefulDegradation){
-		// pthread_cond_wait(&condWakeViewer, &mtxWakeViewer);
+
+		// Waiting to be awaken by the timing thread
+		if ((status = pthread_cond_wait(&condWakeViewer, &mtxWakeViewer)) != 0){
+			printf("[Viewer] Error %d in waiting\n", status);
+		}
+		//------------------------------------------------------------------------//
+		// CRITICAL SECTION on DevicePosition
+		if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+			printf("[Viewer] Error %d in unlocking mutex\n", status);
+		}
+
+		// Getting the current Node pointer
+		currNode = DevicePosition;
+
+		if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+			printf("[Viewer] Error %d in unlocking mutex\n", status);
+		}
+		//------------------------------------------------------------------------//
+
+		for (Node *p = currNode; (p != previousNode) && (p != NULL); p = p->next){
+			// Coordinates are extracted in reverse order
+			correctOrderCoord.space = p->value.space;
+			correctOrderCoord.time = p->value.time;
+			correctOrderList = addToList(correctOrderList, &correctOrderCoord);
+			// reverse order in local auxiliary list
+		}
+
+		previousNode = currNode;
+
+		for (Node *p = correctOrderList; p != NULL; p = p->next){
+			#ifndef PRINT_BAR_INDEX
+			viewPos(&(p->value.space), &(p->value.time), &lowerLimit, &upperLimit, &barLength, &zeroInd);
+			#else
+			ind = viewPos(&(p->value.space), &(p->value.time), &lowerLimit, &upperLimit, &barLength, &zeroInd);
+			printf("Index = %d\n", ind);
+			#endif
+		}
+
+		correctOrderList = freeList(correctOrderList);
+
 	}
-	// Release mutexes
-	if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
-		printf("[Viewer] Error %d in unlocking mutex\n", status);
-	}
+
+	// Release mutex
 	if((status = pthread_mutex_unlock(&mtxWakeViewer)) != 0){
 		printf("[Viewer] Error %d in unlocking mutex\n", status);
 	}

@@ -3,6 +3,7 @@
 
 #define DEBUG
 /*#define PRINT_ALL*/
+// #define PRINT_BAR_INDEX
 #define TESTING
 #define EASTER_EGGS
 

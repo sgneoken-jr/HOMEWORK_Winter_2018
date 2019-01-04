@@ -116,7 +116,7 @@ void *timing(void *inPar){
 
   unsigned int lastCounter = 0;
 
-  while (!gracefulDegradation){
+  while (!everyoneJoined){
       pause();
       lastCounter = counterManager(&counter, &lastCounter, &ctrlInt, &viewInt);
       // #ifdef DEBUG

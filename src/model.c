@@ -35,17 +35,19 @@ void *model(void* inPar){
 	#ifdef DEBUG
 	printf("%s\n", "[Model] Hey Interface, I'm ready!");
 	#endif
+
 	modelReady = true;
+
 	if((status = pthread_cond_signal(&condModelReady)) != 0){
 		printf("[Model] Error %d in signaling\n", status);
 	}
 
 	while (!gracefulDegradation){
 
-		#ifdef DEBUG
-		printf("%s\n", "[Model] Waiting to read from DeviceInput...");
-		#endif
-		// if gracefulDegradation is set to true while model is waiting and a signal does not come it is a problem
+		// #ifdef DEBUG
+		// printf("%s\n", "[Model] Waiting to read from DeviceInput...");
+		// #endif
+		// Waiting for the OK from interface
 		if((status = pthread_cond_wait(&condDevIn, &mtxDevIn)) != 0){
 			printf("[Model] Error %d in waiting\n", status);
 		}
@@ -56,14 +58,23 @@ void *model(void* inPar){
 		#ifdef DEBUG
 		printf("%s\n", "[Model]: I got up!");
 		#endif
-		#ifdef DEBUG
-		printf("%s\n", "[Model]");
-		printList(DeviceInput, getName(DeviceInput));
-		#endif
+		// #ifdef DEBUG
+		// printf("%s\n", "[Model]");
+		// printList(DeviceInput, getName(DeviceInput));
+		// #endif
+		//------------------------------------------------------------------------//
+		// CRITICAL SECTION on DeviceInput
+		// Here mutex mtxDevIn should already be locked from waitC
 
-		// data acquired
 		incr = DeviceInput->value.space;
 		currTime = DeviceInput->value.time;
+		// clear the DeviceInput list
+		// DeviceInput = deleteFromList(DeviceInput, currTime);
+
+		if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
+			printf("[Model] Trying to unlock on DevIn gave error: %d\n", status);
+		}
+		//------------------------------------------------------------------------//
 
 		// update position (with hysteresis)
 		currPos = updatePosition(currPos, incr, lowerLimit, upperLimit);
@@ -73,22 +84,17 @@ void *model(void* inPar){
 		newPosCoord.time = currTime;
 
 		// append to DevicePosition list
+		//------------------------------------------------------------------------//
+		if((status = pthread_mutex_lock(&mtxDevPos)) != 0){
+			printf("[Model] Trying to lock on DevPos gave error: %d\n", status);
+		}
+
 		DevicePosition = addToList(DevicePosition, &newPosCoord);
 
-		// clear the DeviceInput list
-
-
-		// #ifdef DEBUG
-		// printList(DevicePosition, getName(DevicePosition));
-		// #endif
-	}
-
-	// Releasing mutexes
-	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
-		printf("[Model] Error %d in unlocking mutex\n", status);
-	}
-	if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
-		printf("[Model] Error %d in unlocking mutex\n", status);
+		if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+			printf("[Model] Error %d in unlocking mutex\n", status);
+		}
+		//------------------------------------------------------------------------//
 	}
 
 	pthread_exit(NULL);
