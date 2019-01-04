@@ -105,17 +105,17 @@ int fileRead (char *fileName) {
 	// #ifdef DEBUG
 	// printList(DeviceInput, getName(DeviceInput));
 	// #endif
-
-	#ifdef EASTER_EGGS
-	if(fgets(line, sizeof(line), device_file) == NULL){
-		char *str = "The file is wholly read!";
-		printHappy(str);
-	}
-	#endif
-	#ifndef EASTER_EGGS
-	if(fgets(line, sizeof(line), device_file) == NULL){
-		printf("%s\n", "[Interface] File reading complete!");
-	}
+	#ifdef DEBUG
+		#ifdef EASTER_EGGS
+		if(fgets(line, sizeof(line), device_file) == NULL){
+			char *str = "The file is wholly read!";
+			printHappy(str);
+		}
+		#else
+		if(fgets(line, sizeof(line), device_file) == NULL){
+			printf("%s\n", "[Interface] File reading complete!");
+		}
+		#endif
 	#endif
 
   fclose(device_file);

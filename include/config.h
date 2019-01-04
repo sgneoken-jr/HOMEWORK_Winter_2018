@@ -1,19 +1,17 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define DEBUG
-/*#define PRINT_ALL*/
+// #define DEBUG
+// #define PRINT_ALL
 // #define PRINT_BAR_INDEX
-#define TESTING
-#define EASTER_EGGS
-
-
+// #define TESTING
+// #define EASTER_EGGS
 
 #define FILE_INPUT_MODE     7
 #define MAX_SIZE_FILE_NAME  80
 #define DEFAULT_INPUT_FILE  "../input/device.txt"
 #define TIME_UNIT           0
-#define NTIME_UNIT          5e8
+#define NTIME_UNIT          5e7
 #define MAX_LINE_LENGTH     80
 #define ERROR_DESCR_LENGTH  256
 
