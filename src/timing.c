@@ -25,11 +25,13 @@
 // - Create a single dedicated thread that accepts incoming signals using sigwaitinfo(),
 // sigtimedwait(), or sigwait(). We described sigwaitinfo() and sigtimedwait()
 
-static unsigned int counter;
+// counter with visibility in this c file only
+static unsigned int counter; // I have to declare it here, since I can't pass it to the handler
 
 void *timing(void *inPar){
+  int status;
   #ifdef DEBUG
-  printf("%s\n", "Timing thread launched...");
+  printf("%s\n", "[Timing] Launched...");
   #endif
 
   counter = 0; // static for limiting the visibility to this c file
@@ -37,33 +39,35 @@ void *timing(void *inPar){
   // Let's empty the signal mask. This thread gotta catch 'em all
   sigset_t myMask;
   sigemptyset(&myMask);
-  if (pthread_sigmask(SIG_SETMASK, &myMask, NULL) != 0){
-    printf("Error in setting the process mask\n");
+  if ((status = pthread_sigmask(SIG_SETMASK, &myMask, NULL)) != 0){
+    printf("[Timing] Error %d in setting the process mask\n", status);
     exit(EXIT_FAILURE);
   }
 
   // Handlers
   struct sigaction act;
 
-  sigemptyset(&act.sa_mask);
+  if((status = sigemptyset(&act.sa_mask)) != 0){
+    printf("[Timing] Error %d in emptying the sigset of sigaction\n", status);
+    exit(EXIT_FAILURE);
+  }
   act.sa_flags = SA_SIGINFO;
   act.sa_sigaction = sigHandler;
 
-  if (sigaction(SIGINT, &act, NULL) == -1) {
-    printf("%s\n", "Error in sigaction interrupt");
+  if ((status = sigaction(SIGINT, &act, NULL)) == -1) {
+    printf("[Timing] Error %d in sigaction interrupt\n", status);
     exit(EXIT_FAILURE);
   }
 
-  if (sigaction(SIGQUIT, &act, NULL) == -1) {
-    printf("%s\n", "Error in sigaction quit");
+  if ((status = sigaction(SIGQUIT, &act, NULL)) == -1) {
+    printf("[Timing] Error %d in sigaction quit\n", status);
     exit(EXIT_FAILURE);
   }
 
-  if (sigaction(SIGUSR1, &act, NULL) == -1) {
-    printf("%s\n", "Error in sigaction sigusr1");
+  if ((status = sigaction(SIGUSR1, &act, NULL)) == -1) {
+    printf("[Timing] Error %d in sigaction sigusr1\n", status);
     exit(EXIT_FAILURE);
   }
-
 
   // Saving input parameters
   InputPar *myPar = (InputPar *)inPar;
@@ -83,8 +87,8 @@ void *timing(void *inPar){
 
   tTag = TIMER_NEW_DATA_TAG;
   sigx.sigev_value.sival_int = (int)tTag;
-  if (timer_create(CLOCK_REALTIME, &sigx, &timerID[(int)tTag]) == -1) {
-    printf("%s\n", "Error in creating a timer");
+  if ((status = timer_create(CLOCK_REALTIME, &sigx, &timerID[(int)tTag])) == -1) {
+    printf("[Timing] Error %d in creating a timer\n", status);
     exit(EXIT_FAILURE);
   }
 
@@ -105,8 +109,8 @@ void *timing(void *inPar){
   //     count (see timer_getoverrun(2)) will be set correctly.
 
 
-  if (timer_settime(timerID[(int)tTag], 0, &val, NULL) == -1) {
-    printf("%s\n", "Error in setting a timer");
+  if ((status = timer_settime(timerID[(int)tTag], 0, &val, NULL)) == -1) {
+    printf("[Timing] Error %d in setting a timer\n", status);
     exit(EXIT_FAILURE);
   }
 
@@ -121,12 +125,18 @@ void *timing(void *inPar){
   }
 
   // Let everyone know of the graceful degradation
-  pthread_cond_broadcast(&condDevIn);
-  pthread_cond_broadcast(&condDevPos);
-  pthread_cond_signal(&condWakeInterface); // Otherwise interface could be in a deadlock
+  if((status = pthread_cond_broadcast(&condDevIn)) != 0){
+    printf("[Timing] Error %d in signaling\n", status);
+  }
+  if((status = pthread_cond_broadcast(&condDevPos)) != 0){
+    printf("[Timing] Error %d in signaling\n", status);
+  }
+  if((status = pthread_cond_signal(&condWakeInterface)) != 0){
+    printf("[Timing] Error %d in signaling\n", status);
+  } // Otherwise interface could be in a deadlock
 
-  if (timer_delete(timerID[TIMER_NEW_DATA_TAG]) == -1) {
-    printf("%s\n", "Error in deleting a timer");
+  if ((status = timer_delete(timerID[TIMER_NEW_DATA_TAG])) == -1) {
+    printf("[Timing] Error %d in deleting a timer\n", status);
   }
 
   pthread_exit(NULL);
@@ -161,18 +171,25 @@ void sigHandler(int sig, siginfo_t* evp, void* ucontext){
 unsigned int counterManager(
   unsigned int *counter, unsigned int *lastCounter, int *ctrlInt, int *viewInt
 ){
+  int status;
   if (*lastCounter < *counter){ // just got SIGUSR1
     // Wake interface
-    pthread_cond_signal(&condWakeInterface);
+    if ((status = pthread_cond_signal(&condWakeInterface)) != 0){
+      printf("[Timing, counterManager] Error %d in signaling\n", status);
+    }
 
     if (*counter % *ctrlInt == (*ctrlInt - 1)){
       // Wake controller
-      pthread_cond_signal(&condWakeController);
+      if ((status = pthread_cond_signal(&condWakeController)) != 0){
+        printf("[Timing, counterManager] Error %d in signaling\n", status);
+      }
     }
 
     if (*counter % *viewInt == (*viewInt - 1)){
       // Wake viewer
-      pthread_cond_signal(&condWakeViewer);
+      if ((status = pthread_cond_signal(&condWakeViewer)) != 0){
+        printf("[Timing, counterManager] Error %d in signaling\n", status);
+      }
     }
 
     return *counter; // last counter ought to be updated

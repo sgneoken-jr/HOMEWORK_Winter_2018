@@ -11,8 +11,9 @@
 #include "myFunctions.h"
 
 void *model(void* inPar){
+	int status;
 	#ifdef DEBUG
-	printf("Model thread lauched...\n");
+	printf("[Model] Launched...\n");
 	#endif
 
 	// Declaring and initializing a few things before cycling
@@ -32,18 +33,22 @@ void *model(void* inPar){
 	// I can put them in that order into the next list, so that the viewer and
 	// the controller will extract them in the correct order.
 	#ifdef DEBUG
-	printf("%s\n", "Model telling Interface it is ready");
+	printf("%s\n", "[Model] Hey Interface, I'm ready!");
 	#endif
 	modelReady = true;
-	pthread_cond_signal(&condModelReady);
+	if((status = pthread_cond_signal(&condModelReady)) != 0){
+		printf("[Model] Error %d in signaling\n", status);
+	}
 
 	while (!gracefulDegradation){
 
 		#ifdef DEBUG
-		printf("%s\n", "Model waiting to read from DeviceInput");
+		printf("%s\n", "[Model] Waiting to read from DeviceInput...");
 		#endif
 		// if gracefulDegradation is set to true while model is waiting and a signal does not come it is a problem
-		pthread_cond_wait(&condDevIn, &mtxDevIn);
+		if((status = pthread_cond_wait(&condDevIn, &mtxDevIn)) != 0){
+			printf("[Model] Error %d in waiting\n", status);
+		}
 		if (gracefulDegradation){ // avoid deadlock in gracefulDegradation
 			break;
 		}
@@ -52,6 +57,7 @@ void *model(void* inPar){
 		printf("%s\n", "[Model]: I got up!");
 		#endif
 		#ifdef DEBUG
+		printf("%s\n", "[Model]");
 		printList(DeviceInput, getName(DeviceInput));
 		#endif
 
@@ -78,8 +84,12 @@ void *model(void* inPar){
 	}
 
 	// Releasing mutexes
-	pthread_mutex_unlock(&mtxDevIn);
-	pthread_mutex_unlock(&mtxDevPos);
+	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
+		printf("[Model] Error %d in unlocking mutex\n", status);
+	}
+	if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+		printf("[Model] Error %d in unlocking mutex\n", status);
+	}
 
 	pthread_exit(NULL);
 }

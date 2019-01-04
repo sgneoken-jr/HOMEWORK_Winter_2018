@@ -13,8 +13,9 @@
 
 
 void *viewer(void *inPar){
+	int status;
 	#ifdef DEBUG
-	printf("Viewer thread lauched...\n");
+	printf("[Viewer] Launched...\n");
 	#endif
 
 	InputPar *myPar = (InputPar *)inPar;
@@ -23,8 +24,6 @@ void *viewer(void *inPar){
 	upperLimit = myPar->posMax;
 	int barLength = BAR_LENGTH;
 	int ind;
-
-	// int newTerminalStatus = system("gnome-terminal");
 
 	double pos = 0.0;
 	int time = 0;
@@ -53,9 +52,12 @@ void *viewer(void *inPar){
 		// pthread_cond_wait(&condWakeViewer, &mtxWakeViewer);
 	}
 	// Release mutexes
-	pthread_mutex_unlock(&mtxDevPos);
-	pthread_mutex_unlock(&mtxWakeViewer);
-
+	if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+		printf("[Viewer] Error %d in unlocking mutex\n", status);
+	}
+	if((status = pthread_mutex_unlock(&mtxWakeViewer)) != 0){
+		printf("[Viewer] Error %d in unlocking mutex\n", status);
+	}
 
 	pthread_exit(NULL);
 }

@@ -9,8 +9,9 @@
 #include "globVar.h"
 
 void *controller(void* inputParameters){
+	int status;
 	#ifdef DEBUG
-	printf("Controller thread lauched...\n");
+	printf("[Controller] Launched...\n");
 	#endif
 
 	FILE *device_file;
@@ -43,8 +44,12 @@ void *controller(void* inputParameters){
 	}
 
 	// Release mutexes
-	pthread_mutex_unlock(&mtxDevPos);
-	pthread_mutex_unlock(&mtxWakeController);
+	if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+		printf("[Controller] Error %d in unlocking mutex\n", status);
+	}
+	if((status = pthread_mutex_unlock(&mtxWakeController)) != 0){
+		printf("[Controller] Error %d in unlocking mutex\n", status);
+	}
 
 
 	fclose(device_file);

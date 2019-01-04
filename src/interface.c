@@ -12,8 +12,9 @@
 
 
 void *interface(void *fileName){
+	int status;
 	#ifdef DEBUG
-	printf("Interface thread lauched...\n");
+	printf("[Interface] Launched...\n");
 	#endif
 	fileRead((char*)fileName);
 	// if (fileRead((char*)fileName) != 0){
@@ -22,70 +23,90 @@ void *interface(void *fileName){
 	// }
 
 	// Release mutexes
-	pthread_mutex_unlock(&mtxDevIn);
-	pthread_mutex_unlock(&mtxModelReady);
-	pthread_mutex_unlock(&mtxWakeInterface);
+	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
+		printf("[Interface] Error %d in unlocking mutex", status);
+	}
+	if((status = pthread_mutex_unlock(&mtxModelReady)) != 0){
+		printf("[Interface] Error %d in unlocking mutex", status);
+	}
+	if((status = pthread_mutex_unlock(&mtxWakeInterface)) != 0){
+		printf("[Interface] Error %d in unlocking mutex", status);
+	}
 
 	pthread_exit(NULL);
 }
 
 
 int fileRead (char *fileName) {
-    FILE *device_file;
-    char line[MAX_LINE_LENGTH];
+	int status;
+  FILE *device_file;
+  char line[MAX_LINE_LENGTH];
 
-    device_file = fopen(fileName, "r");
+  device_file = fopen(fileName, "r");
 
-    if (device_file == NULL) {
-        printf("Can't open %s\n", fileName);
-        exit(EXIT_FAILURE);
-    }
+  if (device_file == NULL) {
+      printf("Can't open %s\n", fileName);
+      exit(EXIT_FAILURE);
+  }
 
-    int time;
-    double change;
-    Coordinate newCoord;
+  int time;
+  double change;
+  Coordinate newCoord;
 
-		#ifdef DEBUG
-		printf("%s\n", "[Interface]: Waiting for model to be ready");
-		#endif
-		while (!modelReady){ // to avoid busy waiting and saving from random awakenings of the model
-			pthread_cond_wait(&condModelReady, &mtxModelReady); //order of execution
-		}
+	#ifdef DEBUG
+	printf("%s\n", "[Interface]: Waiting for model to be ready");
+	#endif
+	while (!modelReady){ // to avoid busy waiting and saving from random awakenings of the model
+		if((status = pthread_cond_wait(&condModelReady, &mtxModelReady)) != 0){
+			printf("[Interface] Error %d in waiting\n", status);
+		} //order of execution
+	}
 
-    while ( fgets(line, sizeof(line), device_file) && !gracefulDegradation) {
-        sscanf(line, "%d %lf", &time, &change);
-        newCoord.time = time;
-        newCoord.space = change;
+  while ( fgets(line, sizeof(line), device_file) && !gracefulDegradation) {
+      sscanf(line, "%d %lf", &time, &change);
+      newCoord.time = time;
+      newCoord.space = change;
 
-        // Append data to DeviceInput list
-				pthread_cond_wait(&condWakeInterface, &mtxWakeInterface); // Timing
-				if (gracefulDegradation){ // avoid deadlock in gracefulDegradation
-					break;
-				}
-				#ifdef DEBUG
-				printf("%s\n", "[Interface]: I got up!");
-				#endif
-        DeviceInput = addToList(DeviceInput, &newCoord); // a new node is created
+      // Append data to DeviceInput list
+			if((status = pthread_cond_wait(&condWakeInterface, &mtxWakeInterface)) != 0){
+				printf("[Interface] Error %d in waiting\n", status);
+			} // Timing
+			if (gracefulDegradation){ // avoid deadlock in gracefulDegradation
+				break;
+			}
+			#ifdef DEBUG
+			printf("%s\n", "[Interface]: I got up!");
+			#endif
+      DeviceInput = addToList(DeviceInput, &newCoord); // a new node is created
 
-        // signal the data was appended to Model
-        pthread_cond_signal(&condDevIn);
+      // signal the data was appended to Model
+      if((status = pthread_cond_signal(&condDevIn)) != 0){
+				printf("[Interface] Error %d in signaling\n", status);
+			}
 
-				// #ifdef DEBUG
-		    // printList(DeviceInput, getName(DeviceInput));
-		    // #endif
-    }
+			// #ifdef DEBUG
+	    // printList(DeviceInput, getName(DeviceInput));
+	    // #endif
+  }
 
-		pthread_cond_signal(&condDevIn); // Otherwise Model could be in a deadlock
+	if((status = pthread_cond_signal(&condDevIn)) != 0){
+		printf("[Interface] Error %d in signaling\n", status);
+	} // Otherwise Model could be in a deadlock
 
 
-		#ifdef EASTER_EGGS
-		if(fgets(line, sizeof(line), device_file) == NULL){
-			char *str = "The file is wholly read!";
-			printHappy(str);
-		}
-		#endif
+	#ifdef EASTER_EGGS
+	if(fgets(line, sizeof(line), device_file) == NULL){
+		char *str = "The file is wholly read!";
+		printHappy(str);
+	}
+	#endif
+	#ifndef EASTER_EGGS
+	if(fgets(line, sizeof(line), device_file) == NULL){
+		printf("%s\n", "[Interface] File reading complete!");
+	}
+	#endif
 
-    fclose(device_file);
+  fclose(device_file);
 
-    return(0);
+  return(0);
 }
