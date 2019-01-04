@@ -4,15 +4,16 @@
 #include <sys/time.h>
 
 #include "model.h"
-#include "constants.h"
+#include "config.h"
 #include "list.h"
 #include "globVar.h"
 #include "myTypes.h"
 #include "myFunctions.h"
 
 void *model(void* inPar){
+	int status;
 	#ifdef DEBUG
-	printf("Model thread lauched...\n");
+	printf("[Model] Launched...\n");
 	#endif
 
 	// Declaring and initializing a few things before cycling
@@ -31,34 +32,68 @@ void *model(void* inPar){
 	// The data will be in reversed order, since extracted from a list.
 	// I can put them in that order into the next list, so that the viewer and
 	// the controller will extract them in the correct order.
+	#ifdef DEBUG
+	printf("%s\n", "[Model] Hey Interface, I'm ready!");
+	#endif
 
+	modelReady = true;
 
-	while (1){ // EDIT HERE FOR GRACEFUL DEGRADATION
-		// when it's time, take the data from DeviceInput
-		pthread_cond_wait(&condDevIn, &mtxDevIn);
+	if((status = pthread_cond_signal(&condModelReady)) != 0){
+		printf("[Model] Error %d in signaling\n", status);
+	}
 
-		// data acquired
+	while (!gracefulDegradation){
+		// #ifdef DEBUG
+		// printf("%s\n", "[Model] Waiting to read from DeviceInput...");
+		// #endif
+		// Waiting for the OK from interface
+		if((status = pthread_cond_wait(&condDevIn, &mtxDevIn)) != 0){
+			printf("[Model] Error %d in waiting\n", status);
+		}
+		if (gracefulDegradation){ // avoid deadlock in gracefulDegradation
+			break;
+		}
+
+		#ifdef DEBUG
+		printf("%s\n", "[Model]: I got up!");
+		#endif
+		//------------------------------------------------------------------------//
+		// CRITICAL SECTION on DeviceInput
+		// Here mutex mtxDevIn should already be locked from waitC
+
 		incr = DeviceInput->value.space;
 		currTime = DeviceInput->value.time;
+		// clear the DeviceInput list
+		// DeviceInput = deleteFromList(DeviceInput, currTime);
+
+		if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
+			printf("[Model] Trying to unlock on DevIn gave error: %d\n", status);
+		}
+		//------------------------------------------------------------------------//
 
 		// update position (with hysteresis)
 		currPos = updatePosition(currPos, incr, lowerLimit, upperLimit);
 
-		// fill the list DevicePosition
+		// fill the struct coord to append to DevicePosition
 		newPosCoord.space = currPos;
 		newPosCoord.time = currTime;
 
-
 		// append to DevicePosition list
+		//------------------------------------------------------------------------//
+		if((status = pthread_mutex_lock(&mtxDevPos)) != 0){
+			printf("[Model] Trying to lock on DevPos gave error: %d\n", status);
+		}
+
 		DevicePosition = addToList(DevicePosition, &newPosCoord);
-/*		pthread_cond_signal(&condDevPos, &mtxDevPos); // must be timed*/
 
-		printList(DevicePosition, getName(DevicePosition));
-
+		if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+			printf("[Model] Error %d in unlocking mutex\n", status);
+		}
+		//------------------------------------------------------------------------//
+		// #ifdef DEBUG
+		// printList(DevicePosition, getName(DevicePosition));
+		// #endif
 	}
-
-
-
 
 	pthread_exit(NULL);
 }
