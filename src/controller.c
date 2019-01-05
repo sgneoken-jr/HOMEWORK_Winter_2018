@@ -28,7 +28,7 @@ void *controller(void* inputParameters){
 
 	fprintf(device_file, "%-9s %15.9s\n\n", "Time", "Position"); //resolution is fixed by the format
 
-	Node *currNode, *previousNode, *correctOrderList;
+	Node *currNode, *correctOrderList;
 	Coordinate correctOrderCoord;
 
 	// For freeing the list DevicePosition
@@ -63,7 +63,11 @@ void *controller(void* inputParameters){
 		}
 		//------------------------------------------------------------------------//
 		if (currNode != NULL){ // if the list is not empty
-			for (Node *p = currNode; (p != previousNode) && (p != NULL); p = p->next){
+			#ifdef DEBUG
+			printf("[Controller] current node time: %d\n", currNode->value.time);
+			#endif
+
+			for (Node *p = currNode; (p != NULL) && (p->value.time > lastCtrl); p = p->next){
 				// Coordinates are extracted in reverse order
 				correctOrderCoord.space = p->value.space;
 				correctOrderCoord.time = p->value.time;
@@ -71,8 +75,8 @@ void *controller(void* inputParameters){
 				// reverse order in local auxiliary list
 			}
 
+			// At this time, all the data from previous node to current node should be saved in the auxiliary list
 			lastCtrl = currNode->value.time; // last time considered by controller
-			previousNode = currNode;
 
 			for (Node *p = correctOrderList; p != NULL; p = p->next){
 				fprintf(device_file, "%-9d %15.6lf\n", p->value.time, p->value.space);
@@ -82,6 +86,10 @@ void *controller(void* inputParameters){
 
 			// Clean up the buffer
 			// we'll search the smallest time which has already been covered by both the controller and the viewer
+			#ifdef DEBUG
+			printf("%s\n", "[Controller]");
+			printList(DevicePosition, getName(DevicePosition));
+			#endif
 			whatToFreeFrom.val.i = MIN(lastView, lastCtrl);
 			cleanBuffer(freeFromHere, &whatToFreeFrom);
 			#ifdef DEBUG

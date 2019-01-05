@@ -90,6 +90,9 @@ void *model(void* inPar){
 		if((status = pthread_mutex_lock(&mtxDevPos)) != 0){
 			printf("[Model] Trying to lock on DevPos gave error: %d\n", status);
 		}
+		#ifdef DEBUG
+		printf("[Model] Time inserted: %d\n", newPosCoord.time);
+		#endif
 
 		DevicePosition = addToList(DevicePosition, &newPosCoord);
 

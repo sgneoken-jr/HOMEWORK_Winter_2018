@@ -34,9 +34,8 @@ void *viewer(void *inPar){
 	// time = 1000;
 	// ind = viewPos(&pos, &time, &lowerLimit, &upperLimit, &barLength, &zeroInd);
 	//
-	Node *currNode, *previousNode, *correctOrderList; // saving in local
+	Node *currNode, *correctOrderList; // saving in local
 	Coordinate correctOrderCoord;
-	previousNode = NULL;
 	correctOrderList = NULL;
 	#ifdef PRINT_BAR_INDEX
 	int ind; // The index in the bar can possibly be displayed if necessary
@@ -68,7 +67,13 @@ void *viewer(void *inPar){
 		}
 		//------------------------------------------------------------------------//
 		if (currNode != NULL){
-			for (Node *p = currNode; (p != previousNode) && (p != NULL); p = p->next){
+			#ifdef DEBUG
+			printf("[Viewer] current node time: %d\n",
+				currNode->value.time);
+			#endif
+
+
+			for (Node *p = currNode;  (p != NULL) && (p->value.time > lastView); p = p->next){
 				// Coordinates are extracted in reverse order
 				correctOrderCoord.space = p->value.space;
 				correctOrderCoord.time = p->value.time;
@@ -76,8 +81,8 @@ void *viewer(void *inPar){
 				// reverse order in local auxiliary list
 			}
 
+			// At this time, all the data from previous node to current node should be saved in the auxiliary list
 			lastView = currNode->value.time; // last time considered by viewer
-			previousNode = currNode;
 
 			for (Node *p = correctOrderList; p != NULL; p = p->next){
 				#ifndef PRINT_BAR_INDEX
@@ -159,9 +164,9 @@ int viewPos(double *pos, int *time, double *lowerLimit, double *upperLimit, int 
 	if (indicator == *barLength){
 		indicator--;
 	}
-	#ifdef DEBUG
-	printf("%d\n", indicator);
-	#endif
+	// #ifdef DEBUG
+	// printf("%d\n", indicator);
+	// #endif
   printBar(&indicator, barLength, zeroInd);
   printCoord(time, pos);
 
