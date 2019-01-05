@@ -11,7 +11,7 @@
 #define MAX_SIZE_FILE_NAME  80
 #define DEFAULT_INPUT_FILE  "../input/device.txt"
 #define TIME_UNIT           0
-#define NTIME_UNIT          5e7
+#define NTIME_UNIT          5e8
 #define MAX_LINE_LENGTH     80
 #define ERROR_DESCR_LENGTH  256
 

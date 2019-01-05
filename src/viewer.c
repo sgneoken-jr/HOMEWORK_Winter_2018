@@ -61,29 +61,29 @@ void *viewer(void *inPar){
 			printf("[Viewer] Error %d in unlocking mutex\n", status);
 		}
 		//------------------------------------------------------------------------//
+		if (currNode != NULL){
+			for (Node *p = currNode; (p != previousNode) && (p != NULL); p = p->next){
+				// Coordinates are extracted in reverse order
+				correctOrderCoord.space = p->value.space;
+				correctOrderCoord.time = p->value.time;
+				correctOrderList = addToList(correctOrderList, &correctOrderCoord);
+				// reverse order in local auxiliary list
+			}
 
-		for (Node *p = currNode; (p != previousNode) && (p != NULL); p = p->next){
-			// Coordinates are extracted in reverse order
-			correctOrderCoord.space = p->value.space;
-			correctOrderCoord.time = p->value.time;
-			correctOrderList = addToList(correctOrderList, &correctOrderCoord);
-			// reverse order in local auxiliary list
+			lastView = currNode->value.time; // last time considered by viewer
+			previousNode = currNode;
+
+			for (Node *p = correctOrderList; p != NULL; p = p->next){
+				#ifndef PRINT_BAR_INDEX
+				viewPos(&(p->value.space), &(p->value.time), &lowerLimit, &upperLimit, &barLength, &zeroInd);
+				#else
+				ind = viewPos(&(p->value.space), &(p->value.time), &lowerLimit, &upperLimit, &barLength, &zeroInd);
+				printf("Index = %d\n", ind);
+				#endif
+			}
+
+			correctOrderList = freeList(correctOrderList);
 		}
-
-		lastView = currNode->value.time; // last time considered by viewer
-		previousNode = currNode;
-
-		for (Node *p = correctOrderList; p != NULL; p = p->next){
-			#ifndef PRINT_BAR_INDEX
-			viewPos(&(p->value.space), &(p->value.time), &lowerLimit, &upperLimit, &barLength, &zeroInd);
-			#else
-			ind = viewPos(&(p->value.space), &(p->value.time), &lowerLimit, &upperLimit, &barLength, &zeroInd);
-			printf("Index = %d\n", ind);
-			#endif
-		}
-
-		correctOrderList = freeList(correctOrderList);
-
 	}
 
 	// Release mutex

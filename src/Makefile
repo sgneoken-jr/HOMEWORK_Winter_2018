@@ -13,7 +13,7 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _SRC = main.c interface.c model.c viewer.c controller.c list.c myFunctions.c globVar.c timing.c
 
-_DBG = debug_exe
+_DBG = main.o interface.o model.o viewer.o controller.o list.o myFunctions.o globVar.o timing.o
 DBG = $(patsubst %,$(DDIR)/%,$(_DBG))
 
 _OBJ = main.o interface.o model.o viewer.o controller.o list.o myFunctions.o globVar.o timing.o
@@ -26,8 +26,12 @@ $(ODIR)/%.o: %.c $(DEPS)
 haptic: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-debug:
-	$(CC) $(CFLAGS) -g -o $(DBG) $(_SRC) $(DEPS)
+$(DDIR)/%.o: %.c $(DEPS)
+	$(CC) -g -c -o $@ $< $(CFLAGS)
+
+debug_haptic: $(DBG)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	#$(CC) $(CFLAGS) -g -o $(DBG) $(_SRC) $(DEPS) $(LIBS)
 
 .PHONY: clean
 

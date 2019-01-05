@@ -90,9 +90,9 @@ void *model(void* inPar){
 			printf("[Model] Error %d in unlocking mutex\n", status);
 		}
 		//------------------------------------------------------------------------//
-		#ifdef DEBUG
-		printList(DevicePosition, getName(DevicePosition));
-		#endif
+		// #ifdef DEBUG
+		// printList(DevicePosition, getName(DevicePosition));
+		// #endif
 	}
 
 	pthread_exit(NULL);

@@ -75,9 +75,10 @@ int main(int argc, char **argv){
 	// Release and clean up all the mutex
 	freeList(DeviceInput);
 	freeList(DevicePosition);
+
 	// releaseMutex();
-	destroyMutex();
 	destroyCondVar();
+	destroyMutex();
 
 	#ifdef DEBUG
 	printf("%s\n", "[Main] Exiting successfully...");
@@ -266,6 +267,9 @@ void releaseMutex(void){ // for safety, before destroying them
 
 	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
 		printf("[Main] Error %d in mutex unlocking: mtxDevIn\n", status);
+	}
+	if ((status = pthread_mutex_destroy(&mtxDevIn)) != 0){
+			printf("[Main] Error %d in mutex destruction: mtxDevIn\n", status);
 	}
 
 	if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){

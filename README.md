@@ -43,7 +43,11 @@ Tale thread, a ogni unità di tempo (scadenza del timer), sveglia (tramite `pthr
 Una volta estratto l'archivio in un'opportuna cartella, procedere come segue:
 * aprire un terminale e posizionarsi nella cartella scelta tramite la navigazione col comando `cd`
 * entrare nella cartella sorgente: `cd HOMEWORK_Winter_2018/src/`
-* compilare con: `make`
+* compilare con: `make` (o `make debug_haptic` se si intende utilizzare un programma di debugging, e.g. `gdb`)
 * eseguire con la sintassi: `./haptic [posMin] [posMax] [ctrlPer] [viewPer]` o `./haptic [posMin] [posMax] [ctrlPer] [viewPer] --file [fileName]`
 
 Entrando nel file `config.h` e togliendo i commenti alla macro `DEBUG` e ricompilando il programma, l'esecuzione genererà a video indicazioni utili sullo svolgimento delle operazioni. Nel medesimo file sono impostabili anche altre opzioni, quali la granularità temporale, per esempio.
+
+## Test effettuati
+Alcuni esempi di test effettuati:
+* __Valgrind__: `valgrind --leak-check=yes -v --track-origins=yes ./haptic -30 20 3 5`. Non ci sono memory leak, ma alcuni problemi di mancate inizializzazioni.
