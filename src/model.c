@@ -51,6 +51,9 @@ void *model(void* inPar){
 			printf("[Model] Error %d in waiting\n", status);
 		}
 		if (gracefulDegradation){ // avoid deadlock in gracefulDegradation
+			if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
+				printf("[Model] Trying to unlock on DevIn gave error: %d\n", status);
+			}
 			break;
 		}
 

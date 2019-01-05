@@ -74,6 +74,11 @@ int fileRead (char *fileName) {
 			if((status = pthread_cond_wait(&condWakeInterface, &mtxWakeInterface)) != 0){
 				printf("[Interface] Error %d in waiting\n", status);
 			} // Timing
+			// Now mtxWakeInterface is locked. Unlock it!
+			if((status = pthread_mutex_unlock(&mtxWakeInterface)) != 0){
+				printf("[Interface] Trying to unlock on DevIn gave error: %d\n", status);
+			}
+
 			if (gracefulDegradation){ // avoid deadlock in gracefulDegradation
 				break;
 			}

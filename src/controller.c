@@ -41,6 +41,9 @@ void *controller(void* inputParameters){
 		if ((status = pthread_cond_wait(&condWakeController, &mtxWakeController)) != 0){
 			printf("[Controller] Error %d in waiting\n", status);
 		}
+		if ((status = pthread_mutex_unlock(&mtxWakeController)) != 0){
+			printf("[Controller] Error %d in unlocking\n", status);
+		}
 		//------------------------------------------------------------------------//
 		// CRITICAL SECTION on DevicePosition
 		if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
@@ -90,9 +93,9 @@ void *controller(void* inputParameters){
 	// if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
 	// 	printf("[Controller] Error %d in unlocking mutex\n", status);
 	// }
-	if((status = pthread_mutex_unlock(&mtxWakeController)) != 0){
-		printf("[Controller] Error %d in unlocking mutex\n", status);
-	}
+	// if((status = pthread_mutex_unlock(&mtxWakeController)) != 0){
+	// 	printf("[Controller] Error %d in unlocking mutex\n", status);
+	// }
 
 	fclose(device_file);
 

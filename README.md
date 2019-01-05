@@ -45,6 +45,7 @@ Una volta estratto l'archivio in un'opportuna cartella, procedere come segue:
 * entrare nella cartella sorgente: `cd HOMEWORK_Winter_2018/src/`
 * compilare con: `make` (o `make debug_haptic` se si intende utilizzare un programma di debugging, e.g. `gdb`)
 * eseguire con la sintassi: `./haptic [posMin] [posMax] [ctrlPer] [viewPer]` o `./haptic [posMin] [posMax] [ctrlPer] [viewPer] --file [fileName]`
+* Per terminare l'esecuzione del programma, premere `ctrl + C` per attivare la graceful degradation, oppure `ctrl + \` per uscire immediatamente.
 
 Entrando nel file `config.h` e togliendo i commenti alla macro `DEBUG` e ricompilando il programma, l'esecuzione genererà a video indicazioni utili sullo svolgimento delle operazioni. Nel medesimo file sono impostabili anche altre opzioni, quali la granularità temporale, per esempio.
 

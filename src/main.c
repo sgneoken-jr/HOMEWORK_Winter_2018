@@ -78,6 +78,7 @@ int main(int argc, char **argv){
 
 	// releaseMutex();
 	destroyCondVar();
+	releaseMutex();
 	destroyMutex();
 
 	#ifdef DEBUG
@@ -268,13 +269,19 @@ void releaseMutex(void){ // for safety, before destroying them
 	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
 		printf("[Main] Error %d in mutex unlocking: mtxDevIn\n", status);
 	}
-	if ((status = pthread_mutex_destroy(&mtxDevIn)) != 0){
-			printf("[Main] Error %d in mutex destruction: mtxDevIn\n", status);
-	}
+	// if ((status = pthread_mutex_destroy(&mtxDevIn)) != 0){
+	// 		printf("[Main] Error %d in mutex destruction: mtxDevIn\n", status);
+	// }
+
+
 
 	if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
 		printf("[Main] Error %d in mutex unlocking: mtxDevPos\n", status);
 	}
+	// if ((status = pthread_mutex_destroy(&mtxDevPos)) != 0){
+	// 		printf("[Main] Error %d in mutex destruction: mtxDevPos\n", status);
+	// }
+
 
 	if((status = pthread_mutex_unlock(&mtxModelReady)) != 0){
 		printf("[Main] Error %d in mutex unlocking: mtxModelReady\n", status);

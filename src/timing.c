@@ -124,6 +124,17 @@ void *timing(void *inPar){
       // #endif
   }
 
+  // if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
+  //   printf("[Main] Error %d in mutex unlocking: mtxDevIn\n", status);
+  // }
+  // if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+  //   printf("[Main] Error %d in mutex unlocking: mtxDevPos\n", status);
+  // }
+  // if((status = pthread_mutex_unlock(&mtxWakeInterface)) != 0){
+	// 	printf("[Main] Error %d in mutex unlocking: mtxWakeInterface\n", status);
+	// }
+  //
+
   // Let everyone know of the graceful degradation
   if((status = pthread_cond_broadcast(&condDevIn)) != 0){
     printf("[Timing] Error %d in signaling\n", status);
