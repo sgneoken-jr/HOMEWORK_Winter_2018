@@ -61,9 +61,9 @@ void *model(void* inPar){
 			break;
 		}
 
-		#ifdef DEBUG
-		printf("%s\n", "[Model]: I got up!");
-		#endif
+		// #ifdef DEBUG
+		// printf("%s\n", "[Model]: I got up!");
+		// #endif
 		//------------------------------------------------------------------------//
 		// CRITICAL SECTION on DeviceInput
 		// Here mutex mtxDevIn is already locked by pthread_cond_wait()

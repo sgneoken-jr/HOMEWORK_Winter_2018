@@ -80,9 +80,9 @@ int fileRead (char *fileName) {
 			if (gracefulDegradation){ // avoid deadlock in gracefulDegradation
 				break;
 			}
-			#ifdef DEBUG
-			printf("%s\n", "[Interface]: I got up!");
-			#endif
+			// #ifdef DEBUG
+			// printf("%s\n", "[Interface]: I got up!");
+			// #endif
 
 			//------------------------------------------------------------------------//
 			// CRITICAL SECTION on DeviceInput

@@ -129,6 +129,7 @@ double adaptToRange(double *pos, double *lowerLimit, double *upperLimit, int *ba
   double offset = ABS(*lowerLimit);
 
   scaledPos = (*pos + offset) * scaleFactor;
+
   return scaledPos;
 }
 
@@ -153,6 +154,14 @@ void printHeader(int *barLength, int *zeroInd){
 
 int viewPos(double *pos, int *time, double *lowerLimit, double *upperLimit, int *barLength, int *zeroInd){
   int indicator = (int)adaptToRange(pos, lowerLimit, upperLimit, barLength);
+	// This trick should let the upperLimit position be visible.
+	// Position control resides in model and is robust
+	if (indicator == *barLength){
+		indicator--;
+	}
+	#ifdef DEBUG
+	printf("%d\n", indicator);
+	#endif
   printBar(&indicator, barLength, zeroInd);
   printCoord(time, pos);
 
