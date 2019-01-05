@@ -12,7 +12,6 @@
 
 
 void *interface(void *fileName){
-	int status;
 	#ifdef DEBUG
 	printf("[Interface] Launched...\n");
 	#endif
@@ -20,15 +19,6 @@ void *interface(void *fileName){
 	// #ifdef DEBUG
 	// printf("[Interface] Last time read: %d\n", inputFileLastTime);
 	// #endif
-
-	// Release mutexes
-	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
-		printf("[Interface] Error %d in unlocking mutex", status);
-	}
-
-	if((status = pthread_mutex_unlock(&mtxWakeInterface)) != 0){
-		printf("[Interface] Error %d in unlocking mutex", status);
-	}
 
 	pthread_exit(NULL);
 }
