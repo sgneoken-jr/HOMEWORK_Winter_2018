@@ -37,7 +37,9 @@ void *controller(void* inputParameters){
 	whatToFreeFrom.type = timeType;
 
 	while (!gracefulDegradation){
-
+		if((status = pthread_mutex_lock(&mtxWakeController)) != 0){
+			printf("[Viewer] Error %d in locking mutex\n", status);
+		}
 		if ((status = pthread_cond_wait(&condWakeController, &mtxWakeController)) != 0){
 			printf("[Controller] Error %d in waiting\n", status);
 		}
@@ -46,7 +48,7 @@ void *controller(void* inputParameters){
 		}
 		//------------------------------------------------------------------------//
 		// CRITICAL SECTION on DevicePosition
-		if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+		if((status = pthread_mutex_lock(&mtxDevPos)) != 0){
 			printf("[Controller] Error %d in unlocking mutex\n", status);
 		}
 
@@ -88,14 +90,6 @@ void *controller(void* inputParameters){
 			#endif
 		}
 	}
-
-	// Release mutexes
-	// if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
-	// 	printf("[Controller] Error %d in unlocking mutex\n", status);
-	// }
-	// if((status = pthread_mutex_unlock(&mtxWakeController)) != 0){
-	// 	printf("[Controller] Error %d in unlocking mutex\n", status);
-	// }
 
 	fclose(device_file);
 

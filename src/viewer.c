@@ -45,13 +45,19 @@ void *viewer(void *inPar){
 	while (!gracefulDegradation){
 
 		// Waiting to be awaken by the timing thread
-		if ((status = pthread_cond_wait(&condWakeViewer, &mtxWakeViewer)) != 0){
+		if((status = pthread_mutex_lock(&mtxWakeViewer)) != 0){
+			printf("[Viewer] Error %d in locking mutex\n", status);
+		}
+		if((status = pthread_cond_wait(&condWakeViewer, &mtxWakeViewer)) != 0){
 			printf("[Viewer] Error %d in waiting\n", status);
+		}
+		if((status = pthread_mutex_unlock(&mtxWakeViewer)) != 0){
+			printf("[Viewer] Error %d in unlocking mutex\n", status);
 		}
 		//------------------------------------------------------------------------//
 		// CRITICAL SECTION on DevicePosition
-		if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
-			printf("[Viewer] Error %d in unlocking mutex\n", status);
+		if((status = pthread_mutex_lock(&mtxDevPos)) != 0){
+			printf("[Viewer] Error %d in locking mutex\n", status);
 		}
 
 		// Getting the current Node pointer
@@ -84,11 +90,6 @@ void *viewer(void *inPar){
 
 			correctOrderList = freeList(correctOrderList);
 		}
-	}
-
-	// Release mutex
-	if((status = pthread_mutex_unlock(&mtxWakeViewer)) != 0){
-		printf("[Viewer] Error %d in unlocking mutex\n", status);
 	}
 
 	pthread_exit(NULL);

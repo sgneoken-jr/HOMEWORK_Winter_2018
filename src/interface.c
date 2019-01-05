@@ -55,6 +55,10 @@ int fileRead (char *fileName) {
 	#ifdef DEBUG
 	printf("%s\n", "[Interface]: Waiting for model to be ready");
 	#endif
+	if((status = pthread_mutex_lock(&mtxModelReady)) != 0){
+		printf("[Interface] Error %d in locking mutex", status);
+	}
+
 	while (!modelReady){ // to avoid busy waiting and to prevent from random awakenings of the model
 		if((status = pthread_cond_wait(&condModelReady, &mtxModelReady)) != 0){
 			printf("[Interface] Error %d in waiting\n", status);
@@ -71,6 +75,10 @@ int fileRead (char *fileName) {
       newCoord.space = change;
 
       // Append data to DeviceInput list
+			// Wait for your time
+			if((status = pthread_mutex_lock(&mtxWakeInterface)) != 0){
+				printf("[Interface] Error %d in locking mutex", status);
+			}
 			if((status = pthread_cond_wait(&condWakeInterface, &mtxWakeInterface)) != 0){
 				printf("[Interface] Error %d in waiting\n", status);
 			} // Timing

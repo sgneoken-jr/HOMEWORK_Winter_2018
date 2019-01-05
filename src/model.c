@@ -47,6 +47,10 @@ void *model(void* inPar){
 		// printf("%s\n", "[Model] Waiting to read from DeviceInput...");
 		// #endif
 		// Waiting for the OK from interface
+		if((status = pthread_mutex_lock(&mtxDevIn)) != 0){
+			printf("[Interface] Error %d in locking mutex", status);
+		}
+
 		if((status = pthread_cond_wait(&condDevIn, &mtxDevIn)) != 0){
 			printf("[Model] Error %d in waiting\n", status);
 		}
@@ -62,7 +66,7 @@ void *model(void* inPar){
 		#endif
 		//------------------------------------------------------------------------//
 		// CRITICAL SECTION on DeviceInput
-		// Here mutex mtxDevIn should already be locked from waitC
+		// Here mutex mtxDevIn is already locked by pthread_cond_wait()
 
 		incr = DeviceInput->value.space;
 		currTime = DeviceInput->value.time;

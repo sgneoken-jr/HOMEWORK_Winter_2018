@@ -25,7 +25,7 @@ void joinThreads(void);
 
 void initMutex(void);
 void initCondVar(void);
-void releaseMutex(void); // for safety, before destroying them
+// void releaseMutex(void); // for safety, before destroying them
 void destroyMutex(void);
 void destroyCondVar(void);
 
@@ -78,7 +78,6 @@ int main(int argc, char **argv){
 
 	// releaseMutex();
 	destroyCondVar();
-	releaseMutex();
 	destroyMutex();
 
 	#ifdef DEBUG
@@ -237,69 +236,6 @@ void initCondVar(void){
 	}
 }
 
-void releaseMutex(void){ // for safety, before destroying them
-	int status;
-	// // To avoid EBUSY error, I must lock them and then unlock them
-	//
-	// if((status = pthread_mutex_lock(&mtxDevIn)) != 0){
-	// 	printf("[Main] Error %d in mutex locking: mtxDevIn\n", status);
-	// }
-	//
-	// if((status = pthread_mutex_lock(&mtxDevPos)) != 0){
-	// 	printf("[Main] Error %d in mutex locking: mtxDevPos\n", status);
-	// }
-	//
-	// if((status = pthread_mutex_lock(&mtxModelReady)) != 0){
-	// 	printf("[Main] Error %d in mutex locking: mtxModelReady\n", status);
-	// }
-	//
-	// if((status = pthread_mutex_lock(&mtxWakeController)) != 0){
-	// 	printf("[Main] Error %d in mutex locking: mtxWakeInterface\n", status);
-	// }
-	//
-	// if((status = pthread_mutex_lock(&mtxWakeInterface)) != 0){
-	// 	printf("[Main] Error %d in mutex locking: mtxWakeController\n", status);
-	// }
-	//
-	// if((status = pthread_mutex_lock(&mtxWakeViewer)) != 0){
-	// 	printf("[Main] Error %d in mutex locking: mtxWakeViewer\n", status);
-	// }
-	//
-
-	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
-		printf("[Main] Error %d in mutex unlocking: mtxDevIn\n", status);
-	}
-	// if ((status = pthread_mutex_destroy(&mtxDevIn)) != 0){
-	// 		printf("[Main] Error %d in mutex destruction: mtxDevIn\n", status);
-	// }
-
-
-
-	if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
-		printf("[Main] Error %d in mutex unlocking: mtxDevPos\n", status);
-	}
-	// if ((status = pthread_mutex_destroy(&mtxDevPos)) != 0){
-	// 		printf("[Main] Error %d in mutex destruction: mtxDevPos\n", status);
-	// }
-
-
-	if((status = pthread_mutex_unlock(&mtxModelReady)) != 0){
-		printf("[Main] Error %d in mutex unlocking: mtxModelReady\n", status);
-	}
-
-	if((status = pthread_mutex_unlock(&mtxWakeController)) != 0){
-		printf("[Main] Error %d in mutex unlocking: mtxWakeInterface\n", status);
-	}
-
-	if((status = pthread_mutex_unlock(&mtxWakeInterface)) != 0){
-		printf("[Main] Error %d in mutex unlocking: mtxWakeController\n", status);
-	}
-
-	if((status = pthread_mutex_unlock(&mtxWakeViewer)) != 0){
-		printf("[Main] Error %d in mutex unlocking: mtxWakeViewer\n", status);
-	}
-
-}
 
 void destroyMutex(void){
 	int status;
@@ -354,3 +290,67 @@ void destroyCondVar(void){
 			printf("[Main] Error %d in condition variable destruction: condWakeViewer\n", status);
 	}
 }
+
+// void releaseMutex(void){ // for safety, before destroying them
+// 	int status;
+// 	// // To avoid EBUSY error, I must lock them and then unlock them
+// 	//
+// 	// if((status = pthread_mutex_lock(&mtxDevIn)) != 0){
+// 	// 	printf("[Main] Error %d in mutex locking: mtxDevIn\n", status);
+// 	// }
+// 	//
+// 	// if((status = pthread_mutex_lock(&mtxDevPos)) != 0){
+// 	// 	printf("[Main] Error %d in mutex locking: mtxDevPos\n", status);
+// 	// }
+// 	//
+// 	// if((status = pthread_mutex_lock(&mtxModelReady)) != 0){
+// 	// 	printf("[Main] Error %d in mutex locking: mtxModelReady\n", status);
+// 	// }
+// 	//
+// 	// if((status = pthread_mutex_lock(&mtxWakeController)) != 0){
+// 	// 	printf("[Main] Error %d in mutex locking: mtxWakeInterface\n", status);
+// 	// }
+// 	//
+// 	// if((status = pthread_mutex_lock(&mtxWakeInterface)) != 0){
+// 	// 	printf("[Main] Error %d in mutex locking: mtxWakeController\n", status);
+// 	// }
+// 	//
+// 	// if((status = pthread_mutex_lock(&mtxWakeViewer)) != 0){
+// 	// 	printf("[Main] Error %d in mutex locking: mtxWakeViewer\n", status);
+// 	// }
+// 	//
+//
+// 	if((status = pthread_mutex_unlock(&mtxDevIn)) != 0){
+// 		printf("[Main] Error %d in mutex unlocking: mtxDevIn\n", status);
+// 	}
+// 	// if ((status = pthread_mutex_destroy(&mtxDevIn)) != 0){
+// 	// 		printf("[Main] Error %d in mutex destruction: mtxDevIn\n", status);
+// 	// }
+//
+//
+//
+// 	if((status = pthread_mutex_unlock(&mtxDevPos)) != 0){
+// 		printf("[Main] Error %d in mutex unlocking: mtxDevPos\n", status);
+// 	}
+// 	// if ((status = pthread_mutex_destroy(&mtxDevPos)) != 0){
+// 	// 		printf("[Main] Error %d in mutex destruction: mtxDevPos\n", status);
+// 	// }
+//
+//
+// 	if((status = pthread_mutex_unlock(&mtxModelReady)) != 0){
+// 		printf("[Main] Error %d in mutex unlocking: mtxModelReady\n", status);
+// 	}
+//
+// 	if((status = pthread_mutex_unlock(&mtxWakeController)) != 0){
+// 		printf("[Main] Error %d in mutex unlocking: mtxWakeInterface\n", status);
+// 	}
+//
+// 	if((status = pthread_mutex_unlock(&mtxWakeInterface)) != 0){
+// 		printf("[Main] Error %d in mutex unlocking: mtxWakeController\n", status);
+// 	}
+//
+// 	if((status = pthread_mutex_unlock(&mtxWakeViewer)) != 0){
+// 		printf("[Main] Error %d in mutex unlocking: mtxWakeViewer\n", status);
+// 	}
+//
+// }
