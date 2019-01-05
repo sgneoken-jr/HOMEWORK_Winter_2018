@@ -51,4 +51,4 @@ Entrando nel file `config.h` e togliendo i commenti alla macro `DEBUG` e ricompi
 
 ## Test effettuati
 Alcuni esempi di test effettuati:
-* __Valgrind__: `valgrind --leak-check=yes -v --track-origins=yes ./haptic -30 20 3 5`. Non ci sono memory leak, ma alcuni problemi di mancate inizializzazioni.
+* __Valgrind__: `valgrind --leak-check=yes -v --track-origins=yes ./haptic -30 20 3 5`. Non ci sono memory leak, ma alcuni "problemi" di mancate inizializzazioni, che non sembrano compromettere il funzionamento del programma.
