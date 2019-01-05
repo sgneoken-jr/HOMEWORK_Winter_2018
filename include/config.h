@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define DEBUG
+// #define DEBUG
 // #define PRINT_ALL
 // #define PRINT_BAR_INDEX
 // #define TESTING
