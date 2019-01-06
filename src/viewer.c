@@ -172,6 +172,3 @@ int viewPos(double *pos, int *time, double *lowerLimit, double *upperLimit, int 
 
   return indicator;
 }
-// This is a problem of the stdout stream being buffered. You have to flush it explicitly (implicit flushing occurs with a \n) using fflush(stdout) after the printf():
-//
-// fflush(stdout);
