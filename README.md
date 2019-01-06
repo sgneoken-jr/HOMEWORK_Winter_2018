@@ -58,7 +58,8 @@ Alcuni esempi di test effettuati:
 * Sono stati provati diversi file di input (vedere la cartelle `input`):
 - `device.txt`, fornito assieme alla consegna, per testare il funzionamento di massima del sistema;
 - `device1.txt`, creato più lungo per controllare che non vi fossero dei _miss_ del `Viewer` o del `Controller`, oppure delle cancellazioni precoci di dati;
-- `device2.txt`, per testare la visualizzazione delle posizioni limite.
+- `device2.txt`, per testare la visualizzazione delle posizioni limite;
+- `device3.txt`, molto lungo (perché era bello vederlo funzionare).
 
 ## Istruzioni per la compilazione
 Una volta estratto l'archivio in un'opportuna cartella, procedere come segue:
