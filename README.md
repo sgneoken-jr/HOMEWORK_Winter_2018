@@ -65,6 +65,7 @@ Alcuni esempi di test effettuati:
 Una volta estratto l'archivio in un'opportuna cartella, procedere come segue:
 * aprire un terminale (testato su GNOME Terminal) e posizionarsi nella cartella scelta tramite la navigazione col comando `cd`
 * entrare nella cartella sorgente: `cd HOMEWORK_Winter_2018/src/`
+* creare le cartelle degli oggetti con: `mkdir obj`, `mkdir debugging`.
 * compilare con: `make` (o `make debug_haptic` se si intende utilizzare un programma di debugging, e.g. `gdb`)
 * eseguire con la sintassi: `./haptic [posMin] [posMax] [ctrlPer] [viewPer]`
 * Su iniziativa personale, ho fatto in modo che un file di input diverso da quello di default (`device.txt`), potesse essere letto senza ricompilare il sorgente nel seguente modo: `./haptic [posMin] [posMax] [ctrlPer] [viewPer] --file [fileName]`, dove con `fileName` si intende il percorso relativo (dalla cartella attuale a quella dove si trova il file desiderato), e.g. `../input/device1.txt`;
